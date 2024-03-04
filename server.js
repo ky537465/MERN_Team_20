@@ -27,33 +27,38 @@ catch (e)
 app.post('/api/register', async (req, res, next) =>
 {
 	const { UserID, FirstName, LastName, Password, PhoneNumber, Email, Username} = req.body;
+	const database = client.db("COP4331Bank").collection("Users");
 
 	// Check if User already exists
 	try
 	{
-		if (User.findOne({Username}))
-			return res.status(400).json({message: 'User already exists'});
-	
+		const checkUsername = await database.findOne({Username});
+
+		if (checkUsername)
+		{
+            		return res.status(400).json({ message: 'User ' + Username + ' already exists' });
+        	}
+		
 
 		// Salt and hash Password
-		const salt = bcrypt.genSalt(10);
-		const hashedPassword = bcrypt.hash(Password, salt);
+		const salt = await bcrypt.genSalt(10);
+		const hashedPassword = await bcrypt.hash(Password, salt);
 
-		const newUser = new User(
-		{
-			UserID: UserID,
-			FirstName: FirstName,
-			LastName: LastName,
-			Password: hashedPassword,
-			PhoneNumber: PhoneNumber,
-			Email: Email,
-			Username: Username
-		});
 
+		const newUser = {
+	            UserID: UserID,
+	            FirstName: FirstName,
+	            LastName: LastName,
+	            Password: hashedPassword,
+	            PhoneNumber: PhoneNumber,
+	            Email: Email,
+	            Username: Username
+	        };
+	
+		await database.insertOne(newUser);
+	
+	
 		var error = '';
-
-		const db = client.db("COP4331Bank");
-		const result = db.collection('Users').insertOne(newUser);
 
 	}
 	catch(e)
@@ -69,26 +74,29 @@ app.post('/api/register', async (req, res, next) =>
 // LOGIN
 app.post('/api/login', async (req, res, next) =>
 {
-	var error = '';
-	const { Username, Password } = req.body;
-	const db = client.db("COP4331Bank");
-	const results = db.collection('Users').findOne({Username: Username});
 
-	if (bcrypt.compare(Password, results.Password) == false)
-		res.status(401).json({error: "Invalid Username/Password"});
-
-
-	var id = -1;
-	var fn = '';
-	var ln = '';
-	if( results.length > 0 )
+	try
 	{
-		id = results[0].UserID;
-		fn = results[0].FirstName;
-		ln = results[0].LastName;
+	        const { Username, Password } = req.body;
+	        const database = client.db("COP4331Bank").collection("Users");
+	
+	        // Find user by Username
+	        const results = await database.findOne({ Username });
+	
+	        if (!results || !(await bcrypt.compare(Password, results.Password)))
+		{
+	            return res.status(401).json({ error: "Invalid Username/Password" });
+	        }
+	
+	        const { UserID, FirstName, LastName } = results;
+	
+	        var ret = { ID: UserID, FirstName: FirstName, LastName: LastName, error: '' };
+	        res.status(200).json(ret);
 	}
-	var ret = { ID: id, FirstName: fn, LastName: ln, error:''};
-	res.status(200).json(ret);
+	catch (error)
+	{
+        	res.status(500).json({ error: error.toString() });
+	}
 });
 
 
