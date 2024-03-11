@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom/cjs/react-router-dom.min';
 
 function Register() {
     const [firstName, setFirstName] = useState('');
@@ -11,6 +12,7 @@ function Register() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordRequirements, setPasswordRequirements] = useState([]);
     const [error, setError] = useState('');
+    const [loggedIn, setLoggedIn] = useState(false);
 
     const validatePassword = (value) => {
         const requirements = [];
@@ -82,12 +84,16 @@ function Register() {
                 throw new Error(errorData.message);
             }
 
-            // Handle successful registration, e.g., redirect user or set state
+            setLoggedIn(true);
             console.log('Registration successful');
         } catch (error) {
             setError(error.message);
         }
     };
+
+    if(loggedIn){
+        return <Redirect to="/account" />;
+    }
 
     return (
         <div id="registerDiv">
@@ -146,7 +152,7 @@ function Register() {
                 <button type="submit" onClick={doRegister}>Register</button>
             </div>
             {error && <p>{error}</p>}
-            <p>Already have an account? <Link to="/">Login Here</Link></p>
+            <p>Already have an account? <a onClick={() => {window.location.href="/"}}>Login</a></p>
         </div>
     );
 };

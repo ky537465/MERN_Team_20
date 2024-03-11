@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom/cjs/react-router-dom.min';
 
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loggedIn, setLoggedIn] = useState(false);
 
     const doLogin = async (event) => {
         event.preventDefault();
@@ -29,13 +31,17 @@ function Login() {
 
             const data = await response.json();
 
+            setLoggedIn(true);
+
             console.log('Login successful:', data);
         } catch (error) {
             setError(error.message);
         }
-
-        window.location.href = '/account';
     };
+
+    if(loggedIn){
+        return <Redirect to="/account" />;
+    }
 
     return (
         <div id="loginDiv">
@@ -56,7 +62,7 @@ function Login() {
                 <button type="submit" onClick={doLogin}>Login</button>
             </div>
             {error && <p>{error}</p>}
-            <p>Not registered? <Link to="/register">Register here</Link></p>
+            <p>Not registered? <a onClick={() => {window.location.href="/register"}}>Register</a></p>
         </div>
     );
 };
