@@ -26,12 +26,3 @@ function App() {
 }
 
 export default App;
-/*
-    <BrowserRouter>
-    <Switch>
-      <Route path="/" element={<LoginPage />} />
-      <Route path="/account" element={<AccountPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-    </Switch>
-  </BrowserRouter>
-*/

@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Redirect } from 'react-router-dom/cjs/react-router-dom.min';
 
 function Register() {
     const [firstName, setFirstName] = useState('');
@@ -11,8 +9,8 @@ function Register() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordRequirements, setPasswordRequirements] = useState([]);
+    const [passwordMatch, setPasswordMatch] = useState(true);
     const [error, setError] = useState('');
-    const [loggedIn, setLoggedIn] = useState(false);
 
     const validatePassword = (value) => {
         const requirements = [];
@@ -33,10 +31,19 @@ function Register() {
         }
         setPasswordRequirements(requirements);
     };
-
     const handlePasswordChange = (e) => {
-        setPassword(e.target.value);
-        validatePassword(e.target.value);
+        const newPassword = e.target.value;
+        setPassword(newPassword);
+        validatePassword(newPassword);
+        // Check if passwords match
+        setPasswordMatch(newPassword === confirmPassword);
+    };
+
+    const handleConfirmPasswordChange = (e) => {
+        const newConfirmPassword = e.target.value;
+        setConfirmPassword(newConfirmPassword);
+        // Check if passwords match
+        setPasswordMatch(password === newConfirmPassword);
     };
 
     const handlePasswordBlur = () => {
@@ -47,9 +54,22 @@ function Register() {
         event.preventDefault();
 
         try {
+            setError('');
+            
             // Validate all fields
             if (!firstName || !lastName || !username || !phoneNumber || !email || !password || !confirmPassword) {
                 throw new Error('All fields are required');
+            }
+
+
+            // Validate email and phone number format
+            const emailPattern = /.+@.+\..+/;
+            const phonePattern = /^\d{3}-\d{3}-\d{4}$/;
+            if (!emailPattern.test(email)) {
+                throw new Error('Invalid email format');
+            }
+            if (!phonePattern.test(phoneNumber)) {
+                throw new Error('Invalid phone number format (XXX-XXX-XXXX)');
             }
 
             // Validate password complexity
@@ -63,6 +83,9 @@ function Register() {
                 throw new Error('Passwords do not match');
             }
 
+            // Convert username to lowercase
+            const lowerCaseUsername = username.toLowerCase();
+
             // Send registration request
             const response = await fetch('http://localhost:5000/api/register', {
                 method: 'POST',
@@ -72,7 +95,7 @@ function Register() {
                 body: JSON.stringify({
                     FirstName: firstName,
                     LastName: lastName,
-                    Username: username,
+                    Username: lowerCaseUsername,
                     PhoneNumber: phoneNumber,
                     Email: email,
                     Password: password,
@@ -84,19 +107,17 @@ function Register() {
                 throw new Error(errorData.message);
             }
 
-            setLoggedIn(true);
-            console.log('Registration successful');
+
+            localStorage.setItem('registrationSuccess', 'true');
+            window.location.href = '/login';
         } catch (error) {
             setError(error.message);
         }
     };
 
-    if(loggedIn){
-        return <Redirect to="/account" />;
-    }
 
     return (
-        <div id="registerDiv">
+        <form id="registerDiv">
             <div>
                 <span id="inner-title">Register</span><br />
                 <input
@@ -104,38 +125,39 @@ function Register() {
                     placeholder="First Name"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                /><br />
+                    required /><br />
                 <input
                     type="text"
                     placeholder="Last Name"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                /><br />
+                    required /><br />
                 <input
                     type="text"
                     placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                /><br />
+                    required /><br />
                 <input
-                    type="text"
-                    placeholder="Phone Number"
+                    type="tel"
+                    placeholder="Phone Number (XXX-XXX-XXXX)"
+                    pattern="\d{3}-\d{3}-\d{4}"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                /><br />
+                    required /><br />
                 <input
-                    type="text"
-                    placeholder="Email"
+                    type="email"
+                    placeholder="Email (JaneDoe@example.com)"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                /><br />
+                    required /><br />
                 <input
                     type="password"
                     placeholder="Password"
                     value={password}
                     onChange={handlePasswordChange}
                     onBlur={handlePasswordBlur}
-                /><br />
+                    required /><br />
                 {passwordRequirements.length > 0 && (
                     <ul>
                         {passwordRequirements.map((requirement, index) => (
@@ -147,13 +169,14 @@ function Register() {
                     type="password"
                     placeholder="Confirm Password"
                     value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                /><br />
+                    onChange={(e) => handleConfirmPasswordChange(e)}
+                    required /><br />
+                {!passwordMatch && <p>* Passwords do not match</p>} {/* Display password match indication */}
                 <button type="submit" onClick={doRegister}>Register</button>
             </div>
             {error && <p>{error}</p>}
-            <p>Already have an account? <a onClick={() => {window.location.href="/"}}>Login</a></p>
-        </div>
+            <p>Already have an account? <button onClick={() => { window.location.href = "/" }}>Login</button></p>
+        </form>
     );
 };
 
