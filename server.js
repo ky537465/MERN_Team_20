@@ -26,7 +26,7 @@ catch (e)
 // Register
 app.post('/api/register', async (req, res, next) =>
 {
-	const { UserID, FirstName, LastName, Password, PhoneNumber, Email, Username} = req.body;
+	const { FirstName, LastName, Password, PhoneNumber, Email, Username} = req.body;
 	const database = client.db("COP4331Bank").collection("Users");
 
 	// Check if User already exists
@@ -46,7 +46,6 @@ app.post('/api/register', async (req, res, next) =>
 
 
 		const newUser = {
-	            UserID: UserID,
 	            FirstName: FirstName,
 	            LastName: LastName,
 	            Password: hashedPassword,
@@ -88,9 +87,9 @@ app.post('/api/login', async (req, res, next) =>
 	            return res.status(401).json({ error: "Invalid Username/Password" });
 	        }
 	
-	        const { UserID, FirstName, LastName } = results;
+	        const { _id, FirstName, LastName } = results;
 	
-	        var ret = { ID: UserID, FirstName: FirstName, LastName: LastName, error: '' };
+	        var ret = { ID: _id, FirstName: FirstName, LastName: LastName, error: '' };
 	        res.status(200).json(ret);
 	}
 	catch (error)
@@ -100,6 +99,117 @@ app.post('/api/login', async (req, res, next) =>
 });
 
 
+
+// SEARCH USERS
+app.post('/api/searchUsers', async (req, res) => {
+    const { SearchKey } = req.body;
+    const database = client.db("COP4331Bank").collection("Users");
+
+    try {
+        const query = {
+            $or: [
+                { Username: { $regex: new RegExp(SearchKey, "i")}},
+                { Email: { $regex: new RegExp(SearchKey, "i")}},
+                { PhoneNumber: { $regex: new RegExp(SearchKey, "i")}},
+				{ FirstName: {$regex: new RegExp(SearchKey, "i")}},
+                { LastName: {$regex: new RegExp(SearchKey, "i")}}
+            ]
+        };
+
+        const results = await database.find(query).toArray();
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ error: error.toString() });
+    }
+});
+
+
+
+// SEARCH CHECKING ACCOUNTS
+app.post('/api/searchCheckingAccounts', async (req, res) => {
+    const { SearchKey, UserID } = req.body;
+    const database = client.db("COP4331Bank").collection("Checking Accounts");
+
+    try {
+        const query = {
+            $and: [
+                {UserID},
+                {
+                    $or: [
+                        { AccountID: { $regex: new RegExp(SearchKey, "i")}},
+                        { AccountName: { $regex: new RegExp(SearchKey, "i")}},
+                        { AccountNumber: { $regex: new RegExp(SearchKey, "i")}},
+                        { AccountValue: { $regex: new RegExp(SearchKey, "i")}}
+                    ]
+                }
+            ]
+        };
+
+        const results = await database.find(query).toArray();
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ error: error.toString() });
+    }
+});
+
+
+
+// SEARCH SAVINGS ACCOUNTS
+app.post('/api/searchSavingsAccounts', async (req, res) => {
+    const { SearchKey, UserID } = req.body;
+    const database = client.db("COP4331Bank").collection("Savings Accounts");
+
+    try {
+        const query = {
+            $and: [
+                {UserID},
+                {
+                    $or: [
+                        {AccountID: {$regex: new RegExp(SearchKey, "i")}},
+                        {AccountName: {$regex: new RegExp(SearchKey, "i")}},
+                        {AccountNumber: {$regex: new RegExp(SearchKey, "i")}},
+                        {AccountValue: {$regex: new RegExp(SearchKey, "i")}},
+						{InterestRate: {$regex: new RegExp(SearchKey, "i")}}
+                    ]
+                }
+            ]
+        };
+
+        const results = await database.find(query).toArray();
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ error: error.toString() });
+    }
+});
+
+
+
+// SEARCH TRANSACTIONS
+app.post('/api/searchTransactions', async (req, res) => {
+    const { SearchKey, UserID } = req.body;
+    const database = client.db("COP4331Bank").collection("Transactions");
+
+    try {
+        const query = {
+            $and: [
+                {UserID},
+                {
+                    $or: [
+                        {TransactionID: {$regex: new RegExp(SearchKey, "i")}},
+                        {TransactionValue: {$regex: new RegExp(SearchKey, "i")}},
+                        {DateAndTime: {$regex: new RegExp(SearchKey, "i")}},
+                        {AccountID: {$regex: new RegExp(SearchKey, "i")}}
+                    ]
+                }
+            ]
+        };
+
+        const results = await database.find(query).toArray();
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ error: error.toString() });
+    }
+});
 
 app.use((req, res, next) =>
 {
