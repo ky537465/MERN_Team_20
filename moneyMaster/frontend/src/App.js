@@ -1,13 +1,28 @@
 import React from 'react';
 import './App.css';
 
-import LoginPage from './pages/LoginPage';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
-function App() 
-{
+import LoginPage from './pages/LoginPage';
+import AccountPage from './pages/AccountPage';
+import RegisterPage from './pages/RegisterPage';
+
+function App() {
   return (
-    <LoginPage />
+    <Router>
+      <Switch>
+        <Route path="/account">
+          <AccountPage />
+        </Route>
+        <Route path="/register">
+          <RegisterPage />
+        </Route>
+        <Route path="/">
+          <LoginPage />
+        </Route>
+      </Switch>
+    </Router>
   );
-};
+}
 
 export default App;
