@@ -127,13 +127,13 @@ app.post('/api/searchUsers', async (req, res) => {
 
 // SEARCH CHECKING ACCOUNTS
 app.post('/api/searchCheckingAccounts', async (req, res) => {
-    const { SearchKey, UserID } = req.body;
+    const { SearchKey, _id } = req.body;
     const database = client.db("COP4331Bank").collection("Checking Accounts");
 
     try {
         const query = {
             $and: [
-                {UserID},
+                {_id},
                 {
                     $or: [
                         { AccountID: { $regex: new RegExp(SearchKey, "i")}},
@@ -156,13 +156,13 @@ app.post('/api/searchCheckingAccounts', async (req, res) => {
 
 // SEARCH SAVINGS ACCOUNTS
 app.post('/api/searchSavingsAccounts', async (req, res) => {
-    const { SearchKey, UserID } = req.body;
+    const { SearchKey, _id } = req.body;
     const database = client.db("COP4331Bank").collection("Savings Accounts");
 
     try {
         const query = {
             $and: [
-                {UserID},
+                {_id},
                 {
                     $or: [
                         {AccountID: {$regex: new RegExp(SearchKey, "i")}},
@@ -186,13 +186,13 @@ app.post('/api/searchSavingsAccounts', async (req, res) => {
 
 // SEARCH TRANSACTIONS
 app.post('/api/searchTransactions', async (req, res) => {
-    const { SearchKey, UserID } = req.body;
+    const { SearchKey, _id } = req.body;
     const database = client.db("COP4331Bank").collection("Transactions");
 
     try {
         const query = {
             $and: [
-                {UserID},
+                {_id},
                 {
                     $or: [
                         {TransactionID: {$regex: new RegExp(SearchKey, "i")}},
@@ -210,6 +210,112 @@ app.post('/api/searchTransactions', async (req, res) => {
         res.status(500).json({ error: error.toString() });
     }
 });
+
+
+
+// CREATE CHECKING ACCOUNT
+app.post('/api/createChecking', async (req, res) => {
+    const { _id } = req.body;
+    const database = client.db("COP4331Bank").collection("Checking Accounts");
+
+    try {
+        const checkForChecking = await database.findOne({_id});
+
+        if (checkForChecking)
+	    {
+            return res.status(400).json({ message: 'User already has a checking account'});
+        }
+
+        const newAccount =
+        {
+            AccountName: "Checking Account",
+            AccountValue: Math.floor(Math.random() * 1000) + 1,
+            _id: _id
+        };
+
+        await database.insertOne(newAccount);
+        var error = '';
+    }
+    catch(e)
+    {
+        error = e.toString();
+    }
+    var ret = { error: error };
+    res.status(200).json(ret);
+});
+
+
+
+// CREATE SAVINGS ACCOUNT
+app.post('/api/createSavings', async (req, res) => {
+    const { _id } = req.body;
+    const database = client.db("COP4331Bank").collection("Savings Accounts");
+
+    try {
+        const newAccount =
+        {
+            AccountName: "Checking Account",
+            AccountValue: Math.floor(Math.random() * 1000) + 1,
+            _id: _id
+        };
+
+        await database.insertOne(newAccount);
+        var error = '';
+    }
+    catch(e)
+    {
+        error = e.toString();
+    }
+    var ret = { error: error };
+    res.status(200).json(ret);
+});
+
+
+
+// CHECK BALANCE
+app.post('api/checkBalance', async (req, res) => {
+    const {_id} = req.body;
+    const database = client.db("COP4331Bank").collection("Checking Accounts");
+
+    const checkBalance = await database.findOne({_id});
+
+    if (checkBalance)
+    {
+        return res.status(400).json({ message: AccountValue});
+    }
+    else
+    {
+        return res.status(400).json({ message: "null"});
+    }
+});
+
+
+
+// TRANSFER MONEY
+app.post('api/transferMoney', async (req, res) => {
+    const {_id1, _id2, Money} = req.body;
+    const database = client.db("COP4331Bank").collection("Checking Accounts");
+
+    const checkingAccount1 = await database.findOne({_id});
+    const checkingAccount2 = await database.findOne({_id2});
+
+    if (checkingAccount1 && checkingAccount2)
+    {
+        checkingAccount1.AccountValue -= money;
+        checkingAccount2.AccountValue += money;
+
+        await database.updateOne({_id1: checkingAccount1._id1}, {$set: {AccountValue: checkingAccount1.AccountValue}});
+        await database.updateOne({_id2: checkingAccount2._id2}, {$set: {AccountValue: checkingAccount2.AccountValue}});
+        return res.status(400).json({ message: '$' + money + ' transfered.'});
+    }
+    else if (checkingAccount1)
+    {
+        return res.status(400).json({ message: 'Unable to transfer to null account.'});
+    }
+
+    return res.status(400).json({ message: 'Unable to transfer.'});
+});
+
 
 app.use((req, res, next) =>
 {
