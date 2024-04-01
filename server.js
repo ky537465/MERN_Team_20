@@ -306,6 +306,7 @@ app.post('/api/checkBalance', async (req, res) => {
 app.post('/api/transferMoney', async (req, res) => {
     const { UserID1, UserID2, Money } = req.body;
     const database = client.db("COP4331Bank").collection("Checking Accounts");
+    const databaseT = client.db("COP4331Bank").collection("Transactions");
 
     try {
         const checkingAccount1 = await database.findOne({ UserID: UserID1 });
@@ -328,6 +329,23 @@ app.post('/api/transferMoney', async (req, res) => {
             { $inc: { AccountValue: +Money } }
         );
 
+        const newTransaction1 ={
+            TransactionType: "User -> User",
+            TransactionAmount: "-"+Money,
+            UserID: UserID1,
+            AccountID: checkingAccount1._id
+        };
+    
+        const newTransaction2 ={
+            TransactionType: "User -> User",
+            TransactionAmount: "+"+Money,
+            UserID: UserID2,
+            AccountID: checkingAccount2._id
+        };
+    
+        await databaseT.insertOne(newTransaction1);
+        await databaseT.insertOne(newTransaction2);
+
         var error = '';
     } catch (e) {
         error = e.toString();
@@ -344,15 +362,16 @@ app.post('/api/transferMoneyAccount', async (req, res) => {
     const { UserID, Type, Money } = req.body;
     const database = client.db("COP4331Bank").collection("Checking Accounts");
     const database2 = client.db("COP4331Bank").collection("Savings Accounts");
+    const databaseT = client.db("COP4331Bank").collection("Transactions");
 
     try {
-        const checkingAccount1 = await database.findOne({ UserID });
-        const checkingAccount2 = await database2.findOne({ UserID });
+        const account1 = await database.findOne({ UserID });
+        const account2 = await database2.findOne({ UserID });
 
-        if (!checkingAccount1) {
+        if (!account1) {
             return res.status(500).json({ message: 'User2 missing checking account.'});
         }
-        if (!checkingAccount2) {
+        if (!account2) {
             return res.status(500).json({ message: 'User2 missing savings account.' });
         }
 
@@ -379,6 +398,23 @@ app.post('/api/transferMoneyAccount', async (req, res) => {
                 { $inc: { AccountValue: -Money } }
             );
         }
+
+        const newTransaction1 ={
+            TransactionType: "Account -> Account",
+            TransactionAmount: "-"+Money,
+            UserID: UserID,
+            AccountID: account1._id
+        };
+    
+        const newTransaction2 ={
+            TransactionType: "Account -> Account",
+            TransactionAmount: "+"+Money,
+            UserID: UserID,
+            AccountID: account2._id
+        };
+    
+        await databaseT.insertOne(newTransaction1);
+        await databaseT.insertOne(newTransaction2);
 
         var error = '';
     } catch (e) {

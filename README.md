@@ -104,6 +104,7 @@ application/json
 }
 
 ### TRANSFER MONEY USER -> USER
+# This will transfer the money and add a transfer to the database.
 POST http://localhost:5000/api/transferMoney
 
 application/json
@@ -115,6 +116,7 @@ application/json
 }
 
 ### TRANSFER MONEY ACCOUNT -> ACCOUNT
+# This will transfer the money and add a transfer to the database.
 POST http://localhost:5000/api/transferMoneyAccount
 
 application/json
