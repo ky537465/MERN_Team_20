@@ -65,7 +65,7 @@ application/json
     "UserID": "660ada17b519fd0339d106b3"
 }
 
-### Search Transactions In Progress
+### Search Transactions IP
 POST http://localhost:5000/api/searchTransactions
 
 application/json
@@ -103,13 +103,28 @@ application/json
     "UserID": "660ada17b519fd0339d106b3"
 }
 
-### TRANSFER MONEY
+### TRANSFER MONEY USER -> USER
 POST http://localhost:5000/api/transferMoney
 
 application/json
 
 {
-    "_id1": "1",       // ID of who is sending money
-    "_id2": "2",       // ID of who is recieving money
-    "Money": "345.34"
+    "UserID1": "660ada17b519fd0339d106b3",       // ID of who is sending money
+    "UserID2": "660afe5d252908ef4e28e49a",       // ID of who is recieving money
+    "Money": "10"
+}
+
+### TRANSFER MONEY ACCOUNT -> ACCOUNT
+POST http://localhost:5000/api/transferMoneyAccount
+
+application/json
+
+"Type" can be 1 or 2 no ""s.
+1: Transfers from the User's Checking -> Savings
+2: Transfers from the User's Savings -> Checking
+
+{
+    "UserID": "660ada17b519fd0339d106b3",
+    "Type": 1,
+    "Money": 10
 }
