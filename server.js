@@ -127,19 +127,17 @@ app.post('/api/searchUsers', async (req, res) => {
 
 // SEARCH CHECKING ACCOUNTS
 app.post('/api/searchCheckingAccounts', async (req, res) => {
-    const { SearchKey, _id } = req.body;
+    const { SearchKey, UserID } = req.body;
     const database = client.db("COP4331Bank").collection("Checking Accounts");
 
     try {
         const query = {
             $and: [
-                {_id},
+                {UserID},
                 {
                     $or: [
-                        { AccountID: { $regex: new RegExp(SearchKey, "i")}},
                         { AccountName: { $regex: new RegExp(SearchKey, "i")}},
-                        { AccountNumber: { $regex: new RegExp(SearchKey, "i")}},
-                        { AccountValue: { $regex: new RegExp(SearchKey, "i")}}
+                        { AccountValue: { $regex: new RegExp(SearchKey, "i")}},
                     ]
                 }
             ]
@@ -156,20 +154,17 @@ app.post('/api/searchCheckingAccounts', async (req, res) => {
 
 // SEARCH SAVINGS ACCOUNTS
 app.post('/api/searchSavingsAccounts', async (req, res) => {
-    const { SearchKey, _id } = req.body;
+    const { SearchKey, UserID } = req.body;
     const database = client.db("COP4331Bank").collection("Savings Accounts");
 
     try {
         const query = {
             $and: [
-                {_id},
+                {UserID},
                 {
                     $or: [
-                        {AccountID: {$regex: new RegExp(SearchKey, "i")}},
-                        {AccountName: {$regex: new RegExp(SearchKey, "i")}},
-                        {AccountNumber: {$regex: new RegExp(SearchKey, "i")}},
-                        {AccountValue: {$regex: new RegExp(SearchKey, "i")}},
-						{InterestRate: {$regex: new RegExp(SearchKey, "i")}}
+                        { AccountName: { $regex: new RegExp(SearchKey, "i")}},
+                        { AccountValue: { $regex: new RegExp(SearchKey, "i")}},
                     ]
                 }
             ]
@@ -215,11 +210,11 @@ app.post('/api/searchTransactions', async (req, res) => {
 
 // CREATE CHECKING ACCOUNT
 app.post('/api/createChecking', async (req, res) => {
-    const { _id } = req.body;
+    const { UserID } = req.body;
     const database = client.db("COP4331Bank").collection("Checking Accounts");
 
     try {
-        const checkForChecking = await database.findOne({_id});
+        const checkForChecking = await database.findOne({UserID});
 
         if (checkForChecking)
 	    {
@@ -230,7 +225,7 @@ app.post('/api/createChecking', async (req, res) => {
         {
             AccountName: "Checking Account",
             AccountValue: Math.floor(Math.random() * 1000) + 1,
-            _id: _id
+            UserID: UserID
         };
 
         await database.insertOne(newAccount);
@@ -248,15 +243,15 @@ app.post('/api/createChecking', async (req, res) => {
 
 // CREATE SAVINGS ACCOUNT
 app.post('/api/createSavings', async (req, res) => {
-    const { _id } = req.body;
+    const { UserID } = req.body;
     const database = client.db("COP4331Bank").collection("Savings Accounts");
 
     try {
         const newAccount =
         {
-            AccountName: "Checking Account",
+            AccountName: "Savings Account",
             AccountValue: Math.floor(Math.random() * 1000) + 1,
-            _id: _id
+            UserID: UserID
         };
 
         await database.insertOne(newAccount);
@@ -273,20 +268,8 @@ app.post('/api/createSavings', async (req, res) => {
 
 
 // CHECK BALANCE
-app.post('api/checkBalance', async (req, res) => {
-    const {_id} = req.body;
-    const database = client.db("COP4331Bank").collection("Checking Accounts");
-
-    const checkBalance = await database.findOne({_id});
-
-    if (checkBalance)
-    {
-        return res.status(400).json({ message: AccountValue});
-    }
-    else
-    {
-        return res.status(400).json({ message: "null"});
-    }
+app.get('/api/checkBalance', async (req, res) => {
+    // in progress
 });
 
 
