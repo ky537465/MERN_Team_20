@@ -65,13 +65,12 @@ application/json
     "UserID": "660ada17b519fd0339d106b3"
 }
 
-### Search Transactions IP
+### Search Transactions
 POST http://localhost:5000/api/searchTransactions
 
 application/json
 
 {
-    "SearchKey": "S",
     "UserID": "660ada17b519fd0339d106b3"
 }
 

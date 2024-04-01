@@ -181,18 +181,17 @@ app.post('/api/searchSavingsAccounts', async (req, res) => {
 
 // SEARCH TRANSACTIONS
 app.post('/api/searchTransactions', async (req, res) => {
-    const { SearchKey, _id } = req.body;
+    const { SearchKey, UserID } = req.body;
     const database = client.db("COP4331Bank").collection("Transactions");
 
     try {
         const query = {
             $and: [
-                {_id},
+                {UserID},
                 {
                     $or: [
-                        {TransactionID: {$regex: new RegExp(SearchKey, "i")}},
-                        {TransactionValue: {$regex: new RegExp(SearchKey, "i")}},
-                        {DateAndTime: {$regex: new RegExp(SearchKey, "i")}},
+                        {TransactionType: {$regex: new RegExp(SearchKey, "i")}},
+                        {TransactionAmount: {$regex: new RegExp(SearchKey, "i")}},
                         {AccountID: {$regex: new RegExp(SearchKey, "i")}}
                     ]
                 }
