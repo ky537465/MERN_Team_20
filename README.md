@@ -52,7 +52,7 @@ application/json
 
 {
     "SearchKey": "C",
-    "UserID": 1
+    "UserID": "1"
 }
 
 ### Search Savings Accounts
@@ -62,15 +62,53 @@ application/json
 
 {
     "SearchKey": "S",
-    "UserID": 1
+    "UserID": "1"
 }
 
-### Search Transactions
+### Search Transactions In Progress
 POST http://localhost:5000/api/searchTransactions
 
 application/json
 
 {
     "SearchKey": "S",
-    "UserID": 1
+    "UserID": "1"
+}
+
+### CREATE CHECKING ACCOUNT
+POST http://localhost:5000/api/createChecking
+
+application/json
+
+{
+    "UserID": "1"
+}
+
+### CREATE SAVINGS ACCOUNT
+POST http://localhost:5000/api/createSavings
+
+application/json
+
+{
+    "UserID": "1"
+}
+
+### CHECK BALANCE (IN PROGRESS)
+POST http://localhost:5000/api/checkBalance
+
+application/json
+
+{
+    "_id": "1"         // yes you only need _id
+}
+
+### TRANSFER MONEY
+POST http://localhost:5000/api/transferMoney
+
+application/json
+
+{
+    "_id1": "1",       // ID of who is sending money
+    "_id2": "2",       // ID of who is recieving money
+    "Money": "345.34"
 }
