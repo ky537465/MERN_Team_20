@@ -349,9 +349,7 @@ app.post('/api/transferMoney', async (req, res) => {
     } catch (e) {
         error = e.toString();
     }
-
-    var ret = { error: error };
-    res.status(200).json(ret);
+    return res.status(200).json({ _id: UserID2 });
 });
 
 
@@ -420,8 +418,7 @@ app.post('/api/transferMoneyAccount', async (req, res) => {
         error = e.toString();
     }
 
-    var ret = { error: error };
-    res.status(200).json(ret);
+    return res.status(200).json({ message: "Transfer Complete" });
 });
 
 
