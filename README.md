@@ -52,7 +52,7 @@ application/json
 
 {
     "SearchKey": "C",
-    "UserID": "1"
+    "UserID": "660ada17b519fd0339d106b3"
 }
 
 ### Search Savings Accounts
@@ -62,7 +62,7 @@ application/json
 
 {
     "SearchKey": "S",
-    "UserID": "1"
+    "UserID": "660ada17b519fd0339d106b3"
 }
 
 ### Search Transactions In Progress
@@ -72,7 +72,7 @@ application/json
 
 {
     "SearchKey": "S",
-    "UserID": "1"
+    "UserID": "660ada17b519fd0339d106b3"
 }
 
 ### CREATE CHECKING ACCOUNT
@@ -81,7 +81,7 @@ POST http://localhost:5000/api/createChecking
 application/json
 
 {
-    "UserID": "1"
+    "UserID": "660ada17b519fd0339d106b3"
 }
 
 ### CREATE SAVINGS ACCOUNT
@@ -90,16 +90,17 @@ POST http://localhost:5000/api/createSavings
 application/json
 
 {
-    "UserID": "1"
+    "UserID": "660ada17b519fd0339d106b3"
 }
 
-### CHECK BALANCE (IN PROGRESS)
+### CHECK BALANCE
 POST http://localhost:5000/api/checkBalance
 
 application/json
 
 {
-    "_id": "1"         // yes you only need _id
+    "AccountType": "Savings",
+    "UserID": "660ada17b519fd0339d106b3"
 }
 
 ### TRANSFER MONEY
