@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import AccountPage from './pages/AccountPage';
 import RegisterPage from './pages/RegisterPage';
+import ForgotPwPage from './pages/ForgotPwPage'
 
 function App() {
   return (
@@ -16,6 +17,9 @@ function App() {
         </Route>
         <Route path="/register">
           <RegisterPage />
+        </Route>
+        <Route path ="/forgotpw">
+          <ForgotPwPage />
         </Route>
         <Route path="/">
           <LoginPage />

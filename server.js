@@ -315,3 +315,40 @@ app.use((req, res, next) =>
 });
 app.listen(5000); // start Node + Express server on port 5000
 
+
+
+
+//FORGOT PASSWORD
+/*const jwt = require("jsonwebtoken");
+const mongoUrl = 'mongodb+srv://le100900:wCqe5pUYV7GGTVGi@cluster0.l9zbhsz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const User = mongoose.model("COP4331Bank.Users");
+const JWT_SECRET = process.env.JWT_SECRET_KEY;
+
+
+
+
+app.post("/forgot-password",async(req,res) =>{
+    const{email} = req.body;
+    try {
+        const oldUser = await User.findOne({email});
+        if(!oldUser){
+            return res.json("User does not exist");
+        }
+
+        const secret = JWT_SECRET + oldUser.Password;
+        const token = jwt.sign({ email:oldUser.email, id:oldUser.id},secret,{expiresIn:'5m',});
+
+        const link = 'http://localhost:5000/reset-password/${oldUser._id}/${token}';
+        console.log(link);
+    } catch (error) {
+        
+    }
+
+
+})
+
+
+app.get('/reset-password',async(req,res)=>{
+    const{ id, token} = req.params;
+    console.log(req.params);
+}); */

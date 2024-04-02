@@ -73,6 +73,7 @@ function Login() {
                 <button type="submit" onClick={doLogin}>Login</button>
             </div>
             <p>Not registered? <button onClick={() => {window.location.href="/register"}}>Register</button></p>
+            <p>Forgot your password?<button type="button" onClick={() => {window.location.href="/forgotpw"}}>Forgot Password</button></p>
         </div>
     );
 };
