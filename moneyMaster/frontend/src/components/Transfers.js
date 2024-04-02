@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function Transfers() {
     const [transferTarget, setTransferTarget] = useState('');
+    const [transferTargetUserID, setTransferTargetUserID] = useState('');
     const [transferAmount, setTransferAmount] = useState('');
     const [balanceValid, setBalanceValid] = useState('');
     const [message, setMessage] = useState('');
-    let _id1 = "65da935af876f612b5b77023";
-    let _id2 = "65da9340f876f612b5b77022"
+    let UserID1 = "660ada17b519fd0339d106b3";
+    let UserID2 = "660afe5d252908ef4e28e49a";
 
-    const MakeTransfer = async event => {
+    const CompleteTransfer = async event => {
         event.preventDefault();
-        let obj = { "_id": _id1, "_id2": _id2, "Money": transferAmount };
+        let obj = { "UserID1": UserID1, "UserID2": UserID2, "Money": transferAmount };
         let js = JSON.stringify(obj);
         try {
             const response = await
@@ -23,12 +24,7 @@ function Transfers() {
                     });
             let txt = await response.text();
             let res = JSON.parse(txt);
-            if (res.error.length > 0) {
-                setMessage("API Error:" + res.error);
-            }
-            else {
-                setMessage('');
-            }
+            console.log(res);
         }
         catch (e) {
             setMessage(e.toString());
@@ -37,7 +33,7 @@ function Transfers() {
 
     const CheckTransferValidity = async event => {
         event.preventDefault();
-        let obj = { "_id": _id1 };
+        let obj = { "AccountType":"Checking", "UserID": UserID1 };
         let js = JSON.stringify(obj);
         try {
             const response = await
@@ -50,19 +46,26 @@ function Transfers() {
                     });
             let txt = await response.text();
             let res = JSON.parse(txt);
-            if (res.error.length > 0) {
-                setMessage("API Error:" + res.error);
-            }
-            else {
-                setBalanceValid('Valid Transfer');
-                MakeTransfer();
-            }
+            console.log(res.balance);
+            if (transferAmount <= res.balance){
+                setBalanceValid('True');
+                console.log('valid');
+            } else {
+                setBalanceValid('False')
+                console.log('invalid');
+            } 
         }
         catch (e) {
             setMessage(e.toString());
         }
+        // useEffect(() => {
+        //     if (balanceValid == 'True') {
+        //         console.log('Transfer completed.');
+        //     } else {
+        //         console.log('Transfer not completed.');
+        //     }
+        //   }, [balanceValid]);
     };
-
     return (
         <div>
             <h1>Transfers</h1>
@@ -76,7 +79,7 @@ function Transfers() {
                 value={transferAmount}
                 onChange={e => setTransferAmount(e.target.value)}
             />
-            <button onclick={CheckTransferValidity}>Send</button>
+            <button onClick={CheckTransferValidity}>Send</button>
             <p>Sent: {transferAmount}</p>
             <p>To: {transferTarget}</p>
             <p>{balanceValid}</p>
