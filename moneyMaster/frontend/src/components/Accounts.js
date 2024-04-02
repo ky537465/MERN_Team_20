@@ -1,4 +1,4 @@
-import React, { useState} from 'react'
+import React, { useState } from 'react'
 
 function Accounts() {
     const [message, setMessage] = useState('');
@@ -7,15 +7,15 @@ function Accounts() {
     const [savingsName, setSavingsName] = useState('');
     const [savingsAmount, setSavingsAmount] = useState('');
 
-    const SearchCheckingAccounts = async (event) => {
+    const loadAccounts = async event => {
         event.preventDefault();
-        let obj = { "SearchKey": "C", "UserID": "660ada17b519fd0339d106b3" };
-        let js = JSON.stringify(obj);
+        let objC = { "SearchKey": "C", "UserID": "660ada17b519fd0339d106b3" };
+        let jsC = JSON.stringify(objC);
         try {
             const response = await
                 fetch('http://localhost:5000/api/searchCheckingAccounts',
                     {
-                        method: 'POST', body: js, headers: {
+                        method: 'POST', body: jsC, headers: {
                             'Content-Type':
                                 'application/json'
                         }
@@ -28,29 +28,26 @@ function Accounts() {
             setCheckingName(res[0].AccountName);
             setCheckingAmount(res[0].AccountValue);
             console.log(message);
-            }
+        }
         catch (e) {
             setMessage(e.toString());
         }
-    };
 
-    const SearchSavingsAccounts = async (event) => {
-        event.preventDefault();
-        let obj = { "SearchKey": "S", "UserID": "660ada17b519fd0339d106b3" };
-        let js = JSON.stringify(obj);
+        let objS = { "SearchKey": "S", "UserID": "660ada17b519fd0339d106b3" };
+        let jsS = JSON.stringify(objS);
         try {
             const response = await
                 fetch('http://localhost:5000/api/searchSavingsAccounts',
                     {
-                        method: 'POST', body: js, headers: {
+                        method: 'POST', body: jsS, headers: {
                             'Content-Type':
                                 'application/json'
                         }
                     });
             let txt = await response.text();
             console.log(txt);
-            let res = JSON.parse(txt);      
-            console.log(res);     
+            let res = JSON.parse(txt);
+            console.log(res);
             setMessage('Savings Account Found');
             setSavingsName(res[0].AccountName);
             setSavingsAmount(res[0].AccountValue);
@@ -59,23 +56,26 @@ function Accounts() {
         catch (e) {
             setMessage(e.toString());
         }
-    };
-
-    return (
+};
+// <button onClick={SearchCheckingAccounts}>Load</button>
+// <button onClick={SearchSavingsAccounts}>Load</button>
+//  <button onClick={loadAccounts}>Load</button>
+return (
+    <div>
+        <button onClick={loadAccounts}>Load</button>
+        <h2 id='checkingDiv'>Checking</h2>
         <div>
-            <h2 id='checkingDiv'>Checking</h2>
-            <div>
-                <button onClick={SearchCheckingAccounts}>Load</button>
-                <p>Account Type: {checkingName}</p>
-                <p>Amount: {checkingAmount}</p>
-            </div>
-            <h2 id='savingsDiv'>Savings</h2>
-            <div>
-                <button onClick={SearchSavingsAccounts}>Load</button>
-                <p>Account Type: {savingsName}</p>
-                <p>Amount: {savingsAmount}</p>
-            </div>
+
+            <p>Account Type: {checkingName}</p>
+            <p>Amount: {checkingAmount}</p>
         </div>
-    );
+        <h2 id='savingsDiv'>Savings</h2>
+        <div>
+
+            <p>Account Type: {savingsName}</p>
+            <p>Amount: {savingsAmount}</p>
+        </div>
+    </div>
+);
 }
 export default Accounts;

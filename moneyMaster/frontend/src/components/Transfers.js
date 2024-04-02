@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 function Transfers() {
     const [transferTarget, setTransferTarget] = useState('');
-    const [transferTargetUserID, setTransferTargetUserID] = useState('');
+    // const [transferTargetUserID, setTransferTargetUserID] = useState('');
     const [transferAmount, setTransferAmount] = useState('');
     const [balanceValid, setBalanceValid] = useState('');
     const [message, setMessage] = useState('');
@@ -58,13 +58,11 @@ function Transfers() {
         catch (e) {
             setMessage(e.toString());
         }
-        // useEffect(() => {
-        //     if (balanceValid == 'True') {
-        //         console.log('Transfer completed.');
-        //     } else {
-        //         console.log('Transfer not completed.');
-        //     }
-        //   }, [balanceValid]);
+        if(balanceValid === 'True'){
+            CompleteTransfer(event);
+        }
+        //<p><button onClick={CheckTransferValidity}>Check Amount</button></p>
+        //<p><button onClick={CompleteTransfer}>Confirm Send</button></p>
     };
     return (
         <div>
