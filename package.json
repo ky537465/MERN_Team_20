@@ -5,6 +5,7 @@
 	"main": "server.js",
 	"scripts": {
 	  "start": "node server.js",
+	  "build": "react-scripts build",
 	  "heroku-postbuild": " NPM_CONFIG_PRODUCTION=false npm install --prefix moneyMaster && npm run build --prefix moneyMaster"
 	},
 	"dependencies": {
