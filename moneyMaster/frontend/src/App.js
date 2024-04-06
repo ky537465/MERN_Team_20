@@ -12,6 +12,9 @@ function App() {
   return (
     <Router>
       <Switch>
+      <Route path="/transfer">
+            <TransferPage />
+        </Route>
         <Route path="/account">
           <AccountPage />
         </Route>
