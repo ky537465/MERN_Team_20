@@ -1,5 +1,6 @@
 # MoneyMaster
-We are MoneyMaster and we are the best company for storing and helping you manage your (FAKE) money!
+We are MoneyMaster and we are the best company for storing and helping you
+ manage your (FAKE) money!
 
 ## Connect to local server:
 In Ubuntu
@@ -43,6 +44,18 @@ application/json
 
 {
     "SearchKey": "RickL"
+}
+
+### Edit User
+PUT http://localhost:5000/api/updateUser
+
+{
+    "FirstName":"kylee",
+    "LastName":"weener",
+    "Password":"fff",
+    "PhoneNumber":"",
+    "Email":"k@aol.com",
+    "Username":"Kweener"
 }
 
 ### Search Checking Accounts

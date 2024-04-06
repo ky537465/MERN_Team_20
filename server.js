@@ -125,6 +125,43 @@ app.post('/api/searchUsers', async (req, res) => {
 
 
 
+// UPDATE USER
+app.put('/api/updateUser', async (req, res) => {
+    const { FirstName, LastName, Password, PhoneNumber, Email, Username } = req.body;
+    const database = client.db("COP4331Bank").collection("Users");
+
+    try {
+        // Check if the user exists
+        const existingUser = await database.findOne({ Username: Username });
+        if (!existingUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update user information
+        const updatedUser = {
+            FirstName: FirstName || existingUser.FirstName,
+            LastName: LastName || existingUser.LastName,
+            Password: Password ? await bcrypt.hash(Password, 10) : existingUser.Password, // Hash new password if provided
+            PhoneNumber: PhoneNumber || existingUser.PhoneNumber,
+            Email: Email || existingUser.Email,
+        };
+
+        // Perform the update
+        const result = await database.updateOne({ Username: Username }, { $set: updatedUser });
+
+        // Check if the update was successful
+        if (result.modifiedCount === 0) {
+            return res.status(400).json({ message: 'Failed to update user' });
+        }
+
+        return res.status(200).json({ message: 'User updated successfully' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error', error: error.toString() });
+    }
+});
+
+
+
 // SEARCH CHECKING ACCOUNTS
 app.post('/api/searchCheckingAccounts', async (req, res) => {
     const { SearchKey, UserID } = req.body;
