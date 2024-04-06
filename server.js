@@ -24,7 +24,7 @@ catch (e)
 
 
 // Register
-app.post('/api/register', async (req, res, next) =>
+app.post('/api/register', async (res, req, next) =>
 {
 	const { FirstName, LastName, Password, PhoneNumber, Email, Username} = req.body;
 	const database = client.db("COP4331Bank").collection("Users");
