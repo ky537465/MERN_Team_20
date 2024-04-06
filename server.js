@@ -127,7 +127,7 @@ app.post('/api/searchUsers', async (req, res) => {
 
 // UPDATE USER
 app.put('/api/updateUser', async (req, res) => {
-    const { FirstName, LastName, Password, PhoneNumber, Email, Username } = req.body;
+    const { FirstName, LastName, PhoneNumber, Email, Username } = req.body;
     const database = client.db("COP4331Bank").collection("Users");
 
     try {
@@ -141,7 +141,6 @@ app.put('/api/updateUser', async (req, res) => {
         const updatedUser = {
             FirstName: FirstName || existingUser.FirstName,
             LastName: LastName || existingUser.LastName,
-            Password: Password ? await bcrypt.hash(Password, 10) : existingUser.Password, // Hash new password if provided
             PhoneNumber: PhoneNumber || existingUser.PhoneNumber,
             Email: Email || existingUser.Email,
         };

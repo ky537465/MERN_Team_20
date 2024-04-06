@@ -52,7 +52,6 @@ PUT http://localhost:5000/api/updateUser
 {
     "FirstName":"kylee",
     "LastName":"weener",
-    "Password":"fff",
     "PhoneNumber":"",
     "Email":"k@aol.com",
     "Username":"Kweener"
