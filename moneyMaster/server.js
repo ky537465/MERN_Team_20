@@ -88,9 +88,9 @@ app.post('/api/login', async (req, res, next) =>
 	            return res.status(401).json({ error: "Invalid Username/Password" });
 	        }
 	
-	        const { UserID, FirstName, LastName } = results;
+	        const { UserID, FirstName, LastName, Username: username} = results;
 	
-	        var ret = { ID: UserID, FirstName: FirstName, LastName: LastName, error: '' };
+	        var ret = { ID: UserID, FirstName: FirstName, LastName: LastName,Username: username, error: '' };
 	        res.status(200).json(ret);
 	}
 	catch (error)

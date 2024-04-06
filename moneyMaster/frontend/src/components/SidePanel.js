@@ -38,7 +38,7 @@ function SidePanel()
                     </a>
                 </li>
                 <li>
-                    <a href=''>
+                    <a href='/profile'>
                         User Account
                     </a>
                 </li>

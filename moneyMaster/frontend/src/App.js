@@ -7,11 +7,15 @@ import LoginPage from './pages/LoginPage';
 import AccountPage from './pages/AccountPage';
 import RegisterPage from './pages/RegisterPage';
 import TransferPage from './pages/TransferPage';
+import UserAccountPage from './pages/UserAccountPage';
 
 function App() {
   return (
     <Router>
       <Switch>
+      <Route path="/profile">
+          <UserAccountPage />
+        </Route>
       <Route path="/transfer">
             <TransferPage />
         </Route>
