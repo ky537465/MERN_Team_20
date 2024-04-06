@@ -2,6 +2,7 @@ import React from 'react';
 
 import PageTitle from '../components/PageTitle';
 import LoggedInName from '../components/LoggedInName';
+import Accounts from '../components/Accounts';
 
 const LoggedInPage = () =>
 {
@@ -9,6 +10,7 @@ const LoggedInPage = () =>
         <div>
             <PageTitle />
             <LoggedInName />
+            <Accounts />
         </div>
     );
 }
