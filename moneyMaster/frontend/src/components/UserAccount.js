@@ -4,6 +4,19 @@ function UserAccount() {
     const [userData, setUserData] = useState(null);
     const [error, setError] = useState('');
 
+    const handleEditProfile = () => {
+        window.location.href = '/edit-profile';
+    };
+
+    useEffect(() => {
+        const editSucessful = localStorage.getItem('editSuccess');
+        if (editSucessful) {
+            // Clear the localStorage item once retrieved
+            localStorage.removeItem('editSuccess');
+            setError('Your changes have been saved Succesfully!');
+        }
+    }, []);
+
     useEffect(() => {
         const fetchData = async () => {
             const storedUserData = JSON.parse(localStorage.getItem('user_data'));
@@ -38,6 +51,7 @@ function UserAccount() {
             {userData ? (
                 <>
                     <h2>Profile</h2>
+                    <p>{error ? error : ''}</p>
                     <div className="profile-info">
                         <div className="avatar">{userData.FirstName[0]}{userData.LastName[0]}</div>
                         <div className="name">{userData.FirstName} {userData.LastName}</div>
@@ -45,7 +59,7 @@ function UserAccount() {
                         <div className="phone">{userData.PhoneNumber}</div>
                         <div className="email">{userData.Email}</div>
                     </div>
-                    <button>Edit</button>
+                    <button onClick={handleEditProfile}>Edit</button>
                 </>
             ) : (
                 <p>{error ? error : 'Loading...'}</p>
