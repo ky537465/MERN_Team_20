@@ -1,53 +1,55 @@
 import React, { useState } from 'react';
 
-function SidePanel()
-{
-    const[isPanelExpanded, setIsPanelExpanded] = useState(true);
+function SidePanel() {
+  const [isPanelExpanded, setIsPanelExpanded] = useState(true);
 
-    const togglePanel = () => {
-        setIsPanelExpanded(!isPanelExpanded);
-    };
+  const togglePanel = () => {
+    setIsPanelExpanded(!isPanelExpanded);
+  };
 
-    const doLogout = async (event) => {
-        event.preventDefault();
-        localStorage.removeItem('user_data');
-        window.location.href = '/';
-    };
+  const doLogout = async (event) => {
+    event.preventDefault();
+    localStorage.removeItem('user_data');
+    window.location.href = '/';
+  };
 
-
-    return(
-      <div className={`sidePanel ${isPanelExpanded ? 'expanded' :'collapased'}`}>
-        <div className='toggleButton' onClick={togglePanel}>
-            {isPanelExpanded ? 'Collapse Panel' : 'Expand Panel'}
-        </div>
-        <div className='logo'>
-            <img src="logo.png" alt="Logo" />
-            <span>Money Master</span> 
-        </div>
-
-        <nav className='navigation'>
+  return (
+    <div className={`fixed inset-y-0 overflow-hidden z-50 ${isPanelExpanded ? 'w-1/4' : 'w-20'} transition-all duration-500 bg-[#008080] border-r border-gray-200 shadow-lg flex flex-col justify-between`}>
+      
+      <div>
+      <div onClick={togglePanel} className="cursor-pointer flex items-center py-3">
+        <img src="logo.png" alt="Logo" className="w-20 h-20" />
+        
+        {isPanelExpanded && <span className="text-white text-2xl font-bold ml-2">Money Master</span>}
+      </div>
+      
+      {isPanelExpanded && (
+        <div className='py-2'>
+          <nav className="flex-grow">
             <ul>
-                <li>
-                    <a href='/account'>
-                        Dashboard
-                    </a>
-                </li>
-                <li>
-                    <a href='/transfer'>
-                        Transfer
-                    </a>
-                </li>
-                <li>
-                    <a href='/profile'>
-                        User Account
-                    </a>
-                </li>
+              <li>
+                <a href="/account" className="block text-white  text-3xl font-semibold py-2 px-4 hover:bg-[#99CC99]">Dashboard</a>
+              </li>
+              <li>
+                <a href="/transfer" className="block text-white  text-3xl font-semibold py-2 px-4 hover:bg-[#99CC99]">Transfer</a>
+              </li>
+              <li>
+                <a href="/profile" className="block text-white  text-3xl font-semibold py-2 px-4 hover:bg-[#99CC99]">User Account</a>
+              </li>
             </ul>
-        </nav>
+          </nav>
+        </div>
+      )}
+      </div>
 
-        <button onClick={doLogout}>Log out</button>
-     </div>
-    );
+      {isPanelExpanded &&(          
+        <div>
+            <button onClick={doLogout} className="w-full py-3 bg-[#E9AD03] text-white font-semibold hover:bg-[#8A6807] focus:outline-none">
+              Log out
+            </button>
+        </div>)}
+    </div>
+  );
 }
 
 export default SidePanel;
