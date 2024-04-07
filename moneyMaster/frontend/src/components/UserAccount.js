@@ -3,17 +3,18 @@ import React, { useState, useEffect } from 'react';
 function UserAccount() {
     const [userData, setUserData] = useState(null);
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     const handleEditProfile = () => {
         window.location.href = '/edit-profile';
     };
 
     useEffect(() => {
-        const editSucessful = localStorage.getItem('editSuccess');
-        if (editSucessful) {
+        const editSuccessful = localStorage.getItem('editSuccess');
+        if (editSuccessful) {
             // Clear the localStorage item once retrieved
             localStorage.removeItem('editSuccess');
-            setError('Your changes have been saved Succesfully!');
+            setSuccessMessage('Your changes have been saved successfully!');
         }
     }, []);
 
@@ -27,7 +28,7 @@ function UserAccount() {
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ SearchKey: storedUserData.Username}),
+                        body: JSON.stringify({ SearchKey: storedUserData.Username }),
                     });
 
                     if (!response.ok) {
@@ -47,23 +48,41 @@ function UserAccount() {
     }, []);
 
     return (
-        <div className="user-account">
-            {userData ? (
-                <>
-                    <h2>Profile</h2>
-                    <p>{error ? error : ''}</p>
-                    <div className="profile-info">
-                        <div className="avatar">{userData.FirstName[0]}{userData.LastName[0]}</div>
-                        <div className="name">{userData.FirstName} {userData.LastName}</div>
-                        <div className="username">{userData.Username}</div>
-                        <div className="phone">{userData.PhoneNumber}</div>
-                        <div className="email">{userData.Email}</div>
+        <div className="flex">
+            <div className="w-1/4">
+                {/* Sidebar */}
+                {/* Sidebar content goes here */}
+            </div>
+            <div className="w-3/4 p-4">
+                {/* Profile */}
+                {userData ? (
+                    <div>
+                        <h2 className="text-3xl font-bold mb-2 text-teal-800">Profile</h2>
+                        <hr className="border-teal-800 mb-4" /> {/* Line under the profile title */}
+                        {successMessage && (
+                            <div className="bg-teal-800 text-white font-semibold px-4 py-2 mb-4 rounded" style={{ maxWidth: 'fit-content' }}>
+                                {successMessage}
+                            </div>
+                        )}
+                        <div className="flex items-center mb-4">
+                            <div className="w-20 h-20 bg-gray-400 rounded-full flex items-center justify-center text-teal-800 text-4xl font-bold mr-4">{userData.FirstName[0]}{userData.LastName[0]}</div>
+                            <div>
+                                <p className="text-2xl text-teal-800 font-bold">{userData.FirstName} {userData.LastName}</p>
+                                <p className="text-teal-800">{userData.Username}</p>
+                            </div>
+                        </div>
+                        {/* Contact Information */}
+                        <h3 className="text-3xl font-bold mb-2 text-teal-800">Contact Information</h3>
+                        <hr className="border-teal-800 mb-4" />
+                        <p className="text-teal-800 font-bold">Phone: <span className="font-normal ml-1">{userData.PhoneNumber}</span></p>
+                        <p className="text-teal-800 font-bold">Email: <span className="font-normal ml-1">{userData.Email}</span></p>
+                        {/* Edit button */}
+                        <button onClick={handleEditProfile} className="bg-teal-800 text-white py-2 px-4 mt-4 rounded hover:bg-teal-600">Edit</button>
                     </div>
-                    <button onClick={handleEditProfile}>Edit</button>
-                </>
-            ) : (
-                <p>{error ? error : 'Loading...'}</p>
-            )}
+                ) : (
+                    <p className="text-teal-800">{error ? error : 'Loading...'}</p>
+                )}
+            </div>
         </div>
     );
 }

@@ -8,14 +8,14 @@ import AccountPage from './pages/AccountPage';
 import RegisterPage from './pages/RegisterPage';
 import TransferPage from './pages/TransferPage';
 import UserAccountPage from './pages/UserAccountPage';
-import EditProfile from './components/EditProfile';
+import EditUserAccountPage from './pages/EditUserAccountPage';
 
 function App() {
   return (
     <Router>
       <Switch>
       <Route path="/edit-profile">
-          <EditProfile />
+          <EditUserAccountPage />
         </Route>
       <Route path="/profile">
           <UserAccountPage />

@@ -84,47 +84,56 @@ function EditProfile() {
     };
 
     return (
-        <div className="edit-profile">
-            <h2>Edit Profile</h2>
-            {userData && (
-                <div className="profile-info">
-                    <div className="input-group">
-                        <label>First Name:</label>
-                        <input
-                            type="text"
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
-                        />
+        <div className="flex">
+            <div className="w-1/4">
+                {/* Sidebar Component */}
+            </div>
+            <div className="w-3/4 p-4">
+                <h2 className="text-4xl font-bold text-teal-800 mb-2">Edit Profile</h2>
+                <hr className="border-teal-800 mb-4" />
+                {userData && (
+                    <div className="profile-info">
+                        <div className="mb-4">
+                            <label htmlFor="firstName" className="block text-teal-800 font-bold mb-2">First Name</label>
+                            <input id="firstName" 
+                                type="text" 
+                                value={firstName} 
+                                className="appearance-none border border-teal-800 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                onChange={(e) => setFirstName(e.target.value)}/>
+                        </div>
+                        <div className="mb-4">
+                            <label htmlFor="lastName"  className="block text-teal-800 font-bold mb-2">Last Name</label>
+                            <input
+                                type="text"
+                                className="appearance-none border border-teal-800 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)}
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label htmlFor="phoneNumber" className="block text-teal-800 font-bold mb-2">Phone Number</label>
+                            <input
+                                type="text"
+                                className="appearance-none border border-teal-800 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label htmlFor="email" className="block text-teal-800 font-bold mb-2">Email</label>
+                            <input
+                                type="email"
+                                className="appearance-none border border-teal-800 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
+                        <button onClick={handleSave} className="bg-teal-800 text-white py-2 px-4 mr-2 rounded hover:bg-teal-600">Save</button>
+                        <button onClick={handleCancel} className="bg-teal-800 text-white py-2 px-4 rounded hover:bg-teal-600">Cancel</button>
+                        {error && <p className="error text-teal-800">{error}</p>}
                     </div>
-                    <div className="input-group">
-                        <label>Last Name:</label>
-                        <input
-                            type="text"
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
-                        />
-                    </div>
-                    <div className="input-group">
-                        <label>Phone Number:</label>
-                        <input
-                            type="text"
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                        />
-                    </div>
-                    <div className="input-group">
-                        <label>Email:</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </div>
-                    <button onClick={handleSave}>Save</button>
-                    <button onClick={handleCancel}>Cancel</button>
-                    {error && <p className="error">{error}</p>}
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }
