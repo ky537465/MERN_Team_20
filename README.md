@@ -149,7 +149,7 @@ application/json
 
 {
     "UserID1": "660ada17b519fd0339d106b3",       // ID of who is sending money
-    "UserID2": "660afe5d252908ef4e28e49a",       // ID of who is recieving money
+    "Username": "Kweener",       // who is recieving money
     "Money": "10"
 }
 

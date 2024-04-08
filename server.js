@@ -26,8 +26,16 @@ app.post('/api/register', async (req, res, next) => {
 	// Check if User already exists
 	try {
 		const checkUsername = await database.findOne({Username});
+        const checkEmail = await database.findOne({Email});
+        const checkPhoneNumber = await database.findOne({PhoneNumber});
 		if (checkUsername) {
-            return res.status(400).json({ message: 'User ' + Username + ' already exists' });
+            return res.status(400).json({ message: 'User ' + Username + ' already exists.' });
+        }
+        if (checkEmail) {
+            return res.status(400).json({ message: 'User ' + Email + ' is already being used.' });
+        }
+        if (checkPhoneNumber) {
+            return res.status(400).json({ message: PhoneNumber + ' is already being used.' });
         }
 
 		// Salt and hash Password
@@ -383,8 +391,9 @@ app.post('/api/checkBalance', async (req, res) => {
 
 // TRANSFER MONEY USER -> USER
 app.post('/api/transferMoney', async (req, res) => {
-    const { UserID1, UserID2, Money } = req.body;
+    const { UserID1, Username, Money } = req.body;
     const database = client.db("COP4331Bank").collection("Checking Accounts");
+    const databaseU = client.db("COP4331Bank").collection("Users")
     const databaseT = client.db("COP4331Bank").collection("Transactions");
 
     // Getting date and time.
@@ -401,7 +410,13 @@ app.post('/api/transferMoney', async (req, res) => {
 
     try {
         const checkingAccount1 = await database.findOne({ UserID: UserID1 });
-        const checkingAccount2 = await database.findOne({ UserID: UserID2 });
+        const user = await databaseU.findOne({Username})
+
+        if (!user) {
+            return res.status(500).json({message: "User " + Username + " does not exist"})
+        }
+
+        const checkingAccount2 = await database.findOne({ UserID: "" + user._id });
 
         if (!checkingAccount1) {
             return res.status(500).json({ message: 'User2 missing checking account.'});
@@ -416,7 +431,7 @@ app.post('/api/transferMoney', async (req, res) => {
         );
 
         await database.updateOne(
-            { UserID: UserID2 },
+            { UserID: "" + user._id },
             { $inc: { AccountValue: +Money } }
         );
 
@@ -434,7 +449,7 @@ app.post('/api/transferMoney', async (req, res) => {
             TransactionAmount: "+"+Money,
             Date: dateStr,
             Time: timeStr,
-            UserID: UserID2,
+            UserID: user._id,
             AccountID: checkingAccount2._id
         };
     
@@ -445,7 +460,7 @@ app.post('/api/transferMoney', async (req, res) => {
     } catch (e) {
         error = e.toString();
     }
-    return res.status(200).json({ _id: UserID2 });
+    return res.status(200).json({ message: "Money sent to " + Username });
 });
 
 
