@@ -6,5 +6,11 @@
 	  "bcrypt": "^5.0.1",
 	  "mongodb": "^4.4.0",
 	  "tar": "^6.2.0"
-	}
+	},
+	"scripts": {
+          "start": "react-scripts start",
+	  "build": "react-scripts build",
+    	  "test": "react-scripts test",
+    	  "eject": "react-scripts eject"
+  	}
   }
