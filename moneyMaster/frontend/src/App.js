@@ -8,6 +8,7 @@ import AccountPage from './pages/AccountPage';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPwPage from './pages/ForgotPwPage';
 import TransferPage from './pages/TransferPage';
+import ResetPwPage from './pages/ResetPwPage';
 
 function App() {
   return (
@@ -21,6 +22,9 @@ function App() {
         </Route>
         <Route path ="/forgotpw">
           <ForgotPwPage />
+        </Route>
+        <Route path = "/resetpw">
+          <ResetPwPage /> 
         </Route>
         <Route path="/">
           <LoginPage />

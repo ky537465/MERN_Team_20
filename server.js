@@ -1,7 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -24,7 +26,7 @@ catch (e)
 
 
 // REGISTER
-app.post('/api/register', async (res, req, next) =>
+app.post('/api/register', async (req, res, next) =>
 {
 	const { FirstName, LastName, Password, PhoneNumber, Email, Username} = req.body;
 	const database = client.db("COP4331Bank").collection("Users");
@@ -36,8 +38,8 @@ app.post('/api/register', async (res, req, next) =>
 
 		if (checkUsername)
 		{
-            		return res.status(400).json({ message: 'User ' + Username + ' already exists' });
-        	}
+            return res.status(400).json({ message: 'User ' + Username + ' already exists' });
+        }
 		
 
 		// Salt and hash Password
@@ -458,6 +460,139 @@ app.post('/api/transferMoneyAccount', async (req, res) => {
 });
 
 
+// FORGOT PASSWORD
+
+const transporter = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    auth: {
+        user: '',
+        pass: ''
+    }
+});
+
+
+
+
+
+
+// API endpoint to send an email
+app.post('/api/forgotPasswordEmail', async (req, res) => {
+    const { email } = req.body;
+    const database = client.db("COP4331Bank").collection("Users");
+
+
+    const user = await database.findOne({Email: email})
+
+    // generates token
+    const token = crypto.randomBytes(20).toString('hex');
+
+
+    // define email options
+    const mailOptions = {
+        from: 'MoneyMaster.com', // sender address
+        to: email, // list of receivers
+        subject: 'Password Reset Verification Code', // Subject line
+        html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>` +
+        `<p>Please click on the following link, or paste this into your browser to complete the process:</p>` +
+        `<a href="http://localhost:3000/resetpw?token=${token}">Reset Password</a>` +
+        `<p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`
+    };
+
+
+    // verifies if email was sent 
+    try {
+        const updateResult = await database.updateOne(
+            { Email: email },
+            {
+                $set: {
+                    resetPasswordToken: token,
+                    // TODO: add expiration
+                }
+            }
+        );
+
+
+        let info = await transporter.sendMail(mailOptions);
+        console.log('Message sent: %s', info.messageId);
+        res.json({ message: 'Verification email sent successfully.' });
+    } catch (error) {
+        console.error('Failed to send email:', error);
+        res.status(500).json({ message: 'Failed to send verification code. Please try again later.' });
+    }
+});
+
+
+
+
+
+
+
+
+// UPDATE PASSWORD
+app.put('/api/updatePassword', async (req, res) => {
+    const { Token, Password } = req.body;
+    const database = client.db("COP4331Bank").collection("Users");
+
+    try {
+        const user = await database.findOne({
+            resetPasswordToken:Token
+        })
+    
+        if(!user){
+            return res.status(404).json({message: 'Password reset token is invalid.'})
+        }
+
+        const hashedPassword = await bcrypt.hash(Password,10);
+
+        // Update user information
+
+        const result = await database.updateOne(
+            { _id: user._id }, 
+            {
+                $set: { Password: hashedPassword },
+                $unset: { resetPasswordToken: "", resetPasswordExpires: "" }
+            }
+        );
+
+        // Check if the update was successful
+        if (result.modifiedCount === 0) {
+            return res.status(400).json({ message: 'Failed to reset password.' });
+        }
+
+        return res.status(200).json({ message: 'Password reset successfully' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error', error: error.toString() });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.use((req, res, next) =>
 {
@@ -475,39 +610,3 @@ app.use((req, res, next) =>
 app.listen(5000); // start Node + Express server on port 5000
 
 
-
-
-//FORGOT PASSWORD
-/*const jwt = require("jsonwebtoken");
-const mongoUrl = 'mongodb+srv://le100900:wCqe5pUYV7GGTVGi@cluster0.l9zbhsz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-const User = mongoose.model("COP4331Bank.Users");
-const JWT_SECRET = process.env.JWT_SECRET_KEY;
-
-
-
-
-app.post("/forgot-password",async(req,res) =>{
-    const{email} = req.body;
-    try {
-        const oldUser = await User.findOne({email});
-        if(!oldUser){
-            return res.json("User does not exist");
-        }
-
-        const secret = JWT_SECRET + oldUser.Password;
-        const token = jwt.sign({ email:oldUser.email, id:oldUser.id},secret,{expiresIn:'5m',});
-
-        const link = 'http://localhost:5000/reset-password/${oldUser._id}/${token}';
-        console.log(link);
-    } catch (error) {
-        
-    }
-
-
-})
-
-
-app.get('/reset-password',async(req,res)=>{
-    const{ id, token} = req.params;
-    console.log(req.params);
-}); */
