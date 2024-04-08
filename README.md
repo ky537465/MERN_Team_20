@@ -104,6 +104,33 @@ application/json
     "UserID": "660ada17b519fd0339d106b3"
 }
 
+### DELETE CHECKING ACCOUNT
+DELETE http://localhost:5000/api/deleteChecking
+
+application/json
+
+{
+    "UserID": "660ada17b519fd0339d106b3"
+}
+
+### DELETE SAVINGS ACCOUNT
+DELETE http://localhost:5000/api/deleteSavings
+
+application/json
+
+{
+    "UserID": "660ada17b519fd0339d106b3"
+}
+
+### DELETE USER
+DELETE http://localhost:5000/api/deleteUser
+
+application/json
+
+{
+    "Username": "kweener55"
+}
+
 ### CHECK BALANCE
 POST http://localhost:5000/api/checkBalance
 

@@ -10,58 +10,43 @@ const MongoClient = require("mongodb").MongoClient;
 const uri = 'mongodb+srv://le100900:wCqe5pUYV7GGTVGi@cluster0.l9zbhsz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
 const client = new MongoClient(uri);
 
-try
-{
+try {
 	client.connect(console.log("mongodb connected"));
-
-	//listDatabases(client);
-}
-catch (e)
-{
+} catch (e) {
 	console.error(e);
 }
 
 
 
 // REGISTER
-app.post('/api/register', async (req, res, next) =>
-{
+app.post('/api/register', async (req, res, next) => {
 	const { FirstName, LastName, Password, PhoneNumber, Email, Username} = req.body;
-	const database = client.db("COP4331Bank").collection("Users");
+	database = client.db("COP4331Bank").collection("Users");
 
 	// Check if User already exists
-	try
-	{
+	try {
 		const checkUsername = await database.findOne({Username});
-
-		if (checkUsername)
-		{
-            		return res.status(400).json({ message: 'User ' + Username + ' already exists' });
-        	}
-		
+		if (checkUsername) {
+            return res.status(400).json({ message: 'User ' + Username + ' already exists' });
+        }
 
 		// Salt and hash Password
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(Password, salt);
 
-
 		const newUser = {
-	            FirstName: FirstName,
-	            LastName: LastName,
-	            Password: hashedPassword,
-	            PhoneNumber: PhoneNumber,
-	            Email: Email,
-	            Username: Username
-	        };
-	
+	        FirstName: FirstName,
+	        LastName: LastName,
+	        Password: hashedPassword,
+	        PhoneNumber: PhoneNumber,
+	        Email: Email,
+	        Username: Username
+	    };
+
 		await database.insertOne(newUser);
-	
-	
 		var error = '';
 
-	}
-	catch(e)
-	{
+	} catch(e) {
 		error = e.toString();
 	}
 	var ret = { message: "user Registered" };
@@ -71,30 +56,23 @@ app.post('/api/register', async (req, res, next) =>
 
 
 // LOGIN
-app.post('/api/login', async (req, res, next) =>
-{
-
-	try
-	{
-	        const { Username, Password } = req.body;
-	        const database = client.db("COP4331Bank").collection("Users");
+app.post('/api/login', async (req, res, next) => {
+	try {
+	    const { Username, Password } = req.body;
+	    const database = client.db("COP4331Bank").collection("Users");
 	
-	        // Find user by Username
-	        const results = await database.findOne({ Username });
+	    // Find user by Username
+	    const results = await database.findOne({ Username });
+	    if (!results || !(await bcrypt.compare(Password, results.Password))){
+	        return res.status(401).json({ error: "Invalid Username/Password" });
+	    }
 	
-	        if (!results || !(await bcrypt.compare(Password, results.Password)))
-		{
-	            return res.status(401).json({ error: "Invalid Username/Password" });
-	        }
-	
-	        const { _id, FirstName, LastName } = results;
-	
-	        var ret = { ID: _id, FirstName: FirstName, LastName: LastName, error: '' };
-	        res.status(200).json(ret);
+	    const { _id, FirstName, LastName } = results;
+	    var ret = { ID: _id, FirstName: FirstName, LastName: LastName, error: '' };
+	    res.status(200).json(ret);
 	}
-	catch (error)
-	{
-        	res.status(500).json({ error: error.toString() });
+	catch (error) {
+        res.status(500).json({ error: error.toString() });
 	}
 });
 
@@ -251,11 +229,11 @@ app.post('/api/createChecking', async (req, res) => {
     try {
         const checkForChecking = await database.findOne({UserID});
 
-        if (checkForChecking){
+        if (checkForChecking) {
             return res.status(400).json({ message: 'User already has a checking account'});
         }
 
-        const newAccount ={
+        const newAccount = {
             AccountName: "Checking Account",
             AccountValue: Math.floor(Math.random() * 1000) + 1,
             UserID: UserID
@@ -263,9 +241,7 @@ app.post('/api/createChecking', async (req, res) => {
 
         await database.insertOne(newAccount);
         var error = '';
-    }
-    catch(e)
-    {
+    } catch(e) {
         error = e.toString();
     }
     var ret = { error: error };
@@ -300,6 +276,74 @@ app.post('/api/createSavings', async (req, res) => {
     }
     var ret = { error: error };
     res.status(200).json(ret);
+});
+
+
+
+// DELETE CHECKING ACCOUNT
+app.delete('/api/deleteChecking', async (req, res) => {
+    const { UserID } = req.body;
+    const database = client.db("COP4331Bank").collection("Checking Accounts");
+
+    try {
+        // Find the checking account associated with the provided UserID
+        const checkForChecking = await database.findOne({ UserID: UserID });
+
+        if (checkForChecking) {
+            await database.deleteOne({ checkForChecking });
+            return res.status(200).json({ message: "Account deleted." });
+        } else {
+            return res.status(400).json({ message: 'The account specified does not exist.' });
+        }
+    } catch (error) {
+        console.error("Error deleting checking account:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
+
+// DELETE SAVINGS ACCOUNT
+app.delete('/api/deleteSavings', async (req, res) => {
+    const { UserID } = req.body;
+    const database = client.db("COP4331Bank").collection("Savings Accounts");
+
+    try {
+        // Find the checking account associated with the provided UserID
+        const checkForSavings = await database.findOne({ UserID: UserID });
+
+        if (checkForSavings) {
+            await database.deleteOne({ checkForSavings });
+            return res.status(200).json({ message: "Account deleted." });
+        } else {
+            return res.status(400).json({ message: 'The account specified does not exist.' });
+        }
+    } catch (error) {
+        console.error("Error deleting checking account:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
+// DELETE USER
+app.delete('/api/deleteUser', async (req, res) => {
+    const { Username } = req.body;
+    const database = client.db("COP4331Bank").collection("Users");
+
+    try {
+        const user = await database.findOne({ Username: Username });
+
+        if (user) {
+            await database.deleteOne({ Username: Username });
+            return res.status(200).json({ message: "User deleted." });
+        } else {
+            // If user does not exist
+            return res.status(400).json({ message: 'The user specified does not exist.' });
+        }
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
 });
 
 
@@ -343,6 +387,18 @@ app.post('/api/transferMoney', async (req, res) => {
     const database = client.db("COP4331Bank").collection("Checking Accounts");
     const databaseT = client.db("COP4331Bank").collection("Transactions");
 
+    // Getting date and time.
+    var currentDate = new Date();
+    var date = currentDate.getDate();
+    var month = currentDate.getMonth() + 1;
+    var year = currentDate.getFullYear();
+    var hours = currentDate.getHours();
+    var minutes = currentDate.getMinutes();
+    var seconds = currentDate.getSeconds();
+
+    const dateStr = date + "/" + month + "/" + year;
+    const timeStr = hours + ":" + minutes + ":" + seconds;
+
     try {
         const checkingAccount1 = await database.findOne({ UserID: UserID1 });
         const checkingAccount2 = await database.findOne({ UserID: UserID2 });
@@ -364,16 +420,20 @@ app.post('/api/transferMoney', async (req, res) => {
             { $inc: { AccountValue: +Money } }
         );
 
-        const newTransaction1 ={
+        const newTransaction1 = {
             TransactionType: "User -> User",
             TransactionAmount: "-"+Money,
+            Date: dateStr,
+            Time: timeStr,
             UserID: UserID1,
             AccountID: checkingAccount1._id
         };
     
-        const newTransaction2 ={
+        const newTransaction2 = {
             TransactionType: "User -> User",
             TransactionAmount: "+"+Money,
+            Date: dateStr,
+            Time: timeStr,
             UserID: UserID2,
             AccountID: checkingAccount2._id
         };
@@ -396,6 +456,18 @@ app.post('/api/transferMoneyAccount', async (req, res) => {
     const database = client.db("COP4331Bank").collection("Checking Accounts");
     const database2 = client.db("COP4331Bank").collection("Savings Accounts");
     const databaseT = client.db("COP4331Bank").collection("Transactions");
+
+    // Getting date and time.
+    var currentDate = new Date();
+    var date = currentDate.getDate();
+    var month = currentDate.getMonth() + 1;
+    var year = currentDate.getFullYear();
+    var hours = currentDate.getHours();
+    var minutes = currentDate.getMinutes();
+    var seconds = currentDate.getSeconds();
+    
+    const dateStr = date + "/" + month + "/" + year;
+    const timeStr = hours + ":" + minutes + ":" + seconds;
 
     try {
         const account1 = await database.findOne({ UserID });
@@ -432,16 +504,20 @@ app.post('/api/transferMoneyAccount', async (req, res) => {
             );
         }
 
-        const newTransaction1 ={
+        const newTransaction1 = {
             TransactionType: "Account -> Account",
             TransactionAmount: "-"+Money,
+            Date: dateStr,
+            Time: timeStr,
             UserID: UserID,
             AccountID: account1._id
         };
     
-        const newTransaction2 ={
+        const newTransaction2 = {
             TransactionType: "Account -> Account",
             TransactionAmount: "+"+Money,
+            Date: dateStr,
+            Time: timeStr,
             UserID: UserID,
             AccountID: account2._id
         };
@@ -459,8 +535,7 @@ app.post('/api/transferMoneyAccount', async (req, res) => {
 
 
 
-app.use((req, res, next) =>
-{
+app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader(
 		'Access-Control-Allow-Headers',
