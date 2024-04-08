@@ -1,13 +1,4 @@
 {
-	"name": "Money Master",
-	"version": "1.0.0",
-	"description": "Send, receive, and manage your money",
-	"main": "server.js",
-	"scripts": {
-	  "start": "node server.js",
-	  "build": "cd frontend && npm run build",
-	  "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
-	},
 	"dependencies": {
 	  "express": "^4.17.1",
 	  "body-parser": "^1.19.0",
@@ -16,7 +7,4 @@
 	  "mongodb": "^4.4.0",
 	  "tar": "^6.2.0"
 	},
-	"engines": {
-	  "node": ">=12.0.0"
-	}
   }
