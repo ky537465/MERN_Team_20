@@ -7,7 +7,6 @@ const ForgotPwPage = () =>
 {
     return(
         <div>
-            <PageTitle />
             <ForgotPw />
         </div>
     );

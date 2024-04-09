@@ -9,11 +9,23 @@ import RegisterPage from './pages/RegisterPage';
 import ForgotPwPage from './pages/ForgotPwPage';
 import TransferPage from './pages/TransferPage';
 import ResetPwPage from './pages/ResetPwPage';
+import EditUserAccountPage from './pages/EditUserAccountPage';
+import UserAccountPage from './pages/UserAccountPage';
+
 
 function App() {
   return (
     <Router>
       <Switch>
+      <Route path="/edit-profile">
+          <EditUserAccountPage />
+        </Route>
+        <Route path="/profile">
+          <UserAccountPage />
+        </Route>
+      <Route path="/transfer">
+            <TransferPage />
+        </Route>
         <Route path="/account">
           <AccountPage />
         </Route>

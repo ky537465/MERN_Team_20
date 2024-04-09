@@ -111,18 +111,26 @@ function ResetPw() {
 
 
     return (
-        <form id="resetPwDiv">
-            <div>
-                <span id="inner-title">Reset Your Password</span><br />
+        <div className="w-screen h-screen bg-teal-800 flex flex-col items-center justify-center">
+            <div className="flex items-center justify-center">
+                <img src="logo.png" alt="Logo" className="w-28 h-28" />
+                <h1 className="text-white text-7xl font-extrabold ml-2 uppercase leading-tight">Money Master</h1>
+            </div>
+
+            <form className="w-full max-w-md mt-8 px-8 py-6 rounded-lg border-2 border-white flex flex-col items-center" onSubmit={doReset}>
+                <span className="text-white font-bold text-3xl uppercase mb-6">Reset Your Password</span>
+
                 <input
                     type="password"
-                    placeholder="Password"
+                    placeholder="New Password"
+                    className="w-full mb-4 px-3 py-2 bg-transparent text-white border border-white rounded focus:outline-none focus:border-gray-300"
                     value={password}
                     onChange={handlePasswordChange}
                     onBlur={handlePasswordBlur}
-                    required /><br />
+                    required
+                />
                 {passwordRequirements.length > 0 && (
-                    <ul>
+                    <ul className="text-red-500 mb-4">
                         {passwordRequirements.map((requirement, index) => (
                             <li key={index}>{requirement}</li>
                         ))}
@@ -130,15 +138,24 @@ function ResetPw() {
                 )}
                 <input
                     type="password"
-                    placeholder="Confirm Password"
+                    placeholder="Confirm New Password"
+                    className="w-full mb-4 px-3 py-2 bg-transparent text-white border border-white rounded focus:outline-none focus:border-gray-300"
                     value={confirmPassword}
-                    onChange={(e) => handleConfirmPasswordChange(e)}
-                    required /><br />
-                {!passwordMatch && <p>* Passwords do not match</p>} {/* Display password match indication */}
-                <button type="submit" onClick={doReset}>Change Password</button>
-            </div>
-            {error && <p>{error}</p>}
-        </form>
+                    onChange={handleConfirmPasswordChange}
+                    required
+                />
+                {!passwordMatch && <p className="text-red-500 mb-4">* Passwords do not match</p>} {/* Display password match indication */}
+
+                <button 
+                    type="submit" 
+                    className="w-full bg-white text-teal-800 font-semibold py-2 px-4 rounded hover:bg-gray-200"
+                >
+                    Change Password
+                </button>
+
+                {error && <p className="text-red-500 mt-4">{error}</p>}
+            </form>
+        </div>
     );
 };
 

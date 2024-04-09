@@ -1,16 +1,16 @@
 import React from 'react';
 
-import UserAccount from '../components/UserAccount';
 import SidePanel from '../components/SidePanel';
+import EditProfile from '../components/EditProfile';
 
-const UserAccountPage = () =>
+const EditUserAccountPage = () =>
 {
     return(
         <div>
             <SidePanel/>
-            <UserAccount />
+            <EditProfile />
         </div>
     );
 };
 
-export default UserAccountPage;
+export default EditUserAccountPage;

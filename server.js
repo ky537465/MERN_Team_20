@@ -483,10 +483,10 @@ app.post('/api/forgotPasswordEmail', async (req, res) => {
 
 
     const user = await database.findOne({Email: email})
+    console.log(email);
 
     // generates token
     const token = crypto.randomBytes(20).toString('hex');
-
 
     // define email options
     const mailOptions = {
@@ -515,6 +515,7 @@ app.post('/api/forgotPasswordEmail', async (req, res) => {
 
         let info = await transporter.sendMail(mailOptions);
         console.log('Message sent: %s', info.messageId);
+        console.log("email after updateResult" + email);
         res.json({ message: 'Verification email sent successfully.' });
     } catch (error) {
         console.error('Failed to send email:', error);
