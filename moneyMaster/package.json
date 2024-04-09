@@ -8,9 +8,7 @@
 	  "tar": "^6.2.0"
 	},
 	"scripts": {
-          "start": "react-scripts start",
-	  "build": "react-scripts build",
-    	  "test": "react-scripts test",
-    	  "eject": "react-scripts eject"
+          "start": "node server.js",
+	  "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix moneyMaster && npm run build --prefix moneyMaster"
   	}
   }
