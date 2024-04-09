@@ -1,15 +1,16 @@
 {
 	"dependencies": {
-	  "express": "^4.17.1",
-	  "body-parser": "^1.19.0",
-	  "cors": "^2.8.5",
-	  "bcrypt": "^5.0.1",
-	  "mongodb": "^4.4.0",
-	  "tar": "^6.2.0"
+		"bcrypt": "^5.0.1",
+		"body-parser": "^1.19.0",
+		"cors": "^2.8.5",
+		"express": "^4.17.1",
+		"mongodb": "^4.4.0",
+		"react-scripts": "^5.0.1",
+		"tar": "^6.2.0"
 	},
 	"scripts": {
-          "start": "node server.js",
-	  "build": "react-scripts build",
-	  "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
-  	}
-  }
+		"start": "node server.js",
+		"build": "react-scripts build",
+		"heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
+	}
+}
