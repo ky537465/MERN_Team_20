@@ -1,7 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -36,38 +39,105 @@ app.post('/api/register', async (req, res, next) =>
 
 		if (checkUsername)
 		{
-            		return res.status(400).json({ message: 'User ' + Username + ' already exists' });
-        	}
+            return res.status(400).json({ message: 'User ' + Username + ' already exists' });
+        }
 		
 
 		// Salt and hash Password
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(Password, salt);
 
+        // email verification token + expiration
+        const emailVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const codeExpires = Date.now() + 3600000; // Code expires in 1 hour
 
-		const newUser = {
-	            FirstName: FirstName,
-	            LastName: LastName,
-	            Password: hashedPassword,
-	            PhoneNumber: PhoneNumber,
-	            Email: Email,
-	            Username: Username
-	        };
+        const newUser = {
+            FirstName,
+            LastName,
+            Password: hashedPassword,
+            PhoneNumber,
+            Email,
+            Username,
+            IsEmailVerified: false,
+            EmailVerificationCode: emailVerificationCode,
+            CodeExpires: codeExpires
+        };
 	
 		await database.insertOne(newUser);
-	
-	
-		var error = '';
+
+
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.ethereal.email',
+            port: 587,
+            auth: {
+                user: 'elian10@ethereal.email',
+                pass: 'GSz4RsgmFqGHWyYgBr'
+            }
+        });
+
+        const mailOptions = {
+            from: 'moneymaster.com',
+            to: Email,
+            subject: 'Verify Your Email Address',
+            html: `<p>Welcome to MoneyMaster! Please use the following code to verify your email address:</p>` +
+            `<p><b>Verification Code: ${emailVerificationCode}</b></p>` +
+            `<p>If you did not create an account, no further action is required.</p>`
+        };
+
+        try {
+            let info = await transporter.sendMail(mailOptions);
+            res.json({ message: 'Verification email sent successfully. Please check your email to verify your account.' });
+        } catch (error) {
+            console.error('Failed to send verification email:', error);
+            res.status(500).json({ message: 'Failed to send verification email. Please try again later.' });
+        }
+
+        var error = '';
 
 	}
 	catch(e)
 	{
 		error = e.toString();
 	}
-	var ret = { error: error };
-	res.status(200).json(ret);
 });
 
+// VERIFY EMAIL 
+app.post('/api/verify-email-code', async (req, res) => {
+    const { Username, EmailVerificationCode } = req.body; 
+    const database = client.db("COP4331Bank").collection("Users");
+
+    console.log(Username);
+    console.log(EmailVerificationCode);
+
+    try {
+        // Check if the user exists
+        const user = await database.findOne({ Username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check code and expiration
+        if (user.EmailVerificationCode === EmailVerificationCode && user.CodeExpires > Date.now()) {
+            // Mark email as verified and clear the verification code fields
+            const result = await database.updateOne({ Username }, {
+                $set: { IsEmailVerified: true },
+                $unset: { EmailVerificationCode: "", CodeExpires: "" }
+            });
+
+            // Check if the update was successful
+            if (result.modifiedCount === 0) {
+                return res.status(400).json({ message: 'Failed to verify email' });
+            }
+
+            return res.status(200).json({ message: 'Email verified successfully' });
+        } else {
+            return res.status(400).json({ message: 'Invalid or expired code' });
+        }
+    } catch (error) {
+        console.error('Verification error:', error);
+        return res.status(500).json({ message: 'Internal server error', error: error.toString() });
+    }
+});
 
 
 // LOGIN
@@ -86,6 +156,10 @@ app.post('/api/login', async (req, res, next) =>
 		{
 	            return res.status(401).json({ error: "Invalid Username/Password" });
 	        }
+
+            if (!results.IsEmailVerified) {
+                return res.status(403).json({ error: "Please verify your email before logging in." });
+            }
 	
 	        const { _id, FirstName, LastName, Username: username } = results;
 	
@@ -217,30 +291,30 @@ app.post('/api/searchSavingsAccounts', async (req, res) => {
 
 // SEARCH TRANSACTIONS
 app.post('/api/searchTransactions', async (req, res) => {
-    const { SearchKey, _id } = req.body;
-    const database = client.db("COP4331Bank").collection("Transactions");
+	const { SearchKey, UserID } = req.body;
+	const database = client.db("COP4331Bank").collection("Transactions");
 
-    try {
-        const query = {
-            $and: [
-                {_id},
-                {
-                    $or: [
-                        {TransactionID: {$regex: new RegExp(SearchKey, "i")}},
-                        {TransactionValue: {$regex: new RegExp(SearchKey, "i")}},
-                        {DateAndTime: {$regex: new RegExp(SearchKey, "i")}},
-                        {AccountID: {$regex: new RegExp(SearchKey, "i")}}
-                    ]
-                }
-            ]
-        };
+	try {
+		const query = {
+			$and: [
+				{UserID},
+				{
+					$or: [
+						{TransactionType: {$regex: new RegExp(SearchKey, "i")}},
+						{TransactionAmount: {$regex: new RegExp(SearchKey, "i")}},
+						{AccountID: {$regex: new RegExp(SearchKey, "i")}}
+					]
+				}
+			]
+		};
 
-        const results = await database.find(query).toArray();
-        res.status(200).json(results);
-    } catch (error) {
-        res.status(500).json({ error: error.toString() });
-    }
+		const results = await database.find(query).toArray();
+		res.status(200).json(results);
+	} catch (error) {
+		res.status(500).json({ error: error.toString() });
+	}
 });
+
 
 
 
@@ -336,6 +410,103 @@ app.post('api/transferMoney', async (req, res) => {
 });
 
 
+const transporter = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    auth: {
+        user: 'elian10@ethereal.email',
+        pass: 'GSz4RsgmFqGHWyYgBr'
+    }
+});
+
+
+
+
+
+
+// API endpoint to send an email
+app.post('/api/forgotPasswordEmail', async (req, res) => {
+    const { email } = req.body;
+    const database = client.db("COP4331Bank").collection("Users");
+
+
+    const user = await database.findOne({Email: email})
+    console.log(email);
+
+    // generates token
+    const token = crypto.randomBytes(20).toString('hex');
+
+    // define email options
+    const mailOptions = {
+        from: 'moneymaster.com', // sender address
+        to: email, // list of receivers
+        subject: 'Password Reset Verification Code', // Subject line
+        html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>` +
+        `<p>Please click on the following link, or paste this into your browser to complete the process:</p>` +
+        `<a href="http://localhost:3000/resetpw?token=${token}">Reset Password</a>` +
+        `<p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`
+    };
+
+
+    // verifies if email was sent 
+    try {
+        const updateResult = await database.updateOne(
+            { Email: email },
+            {
+                $set: {
+                    resetPasswordToken: token,
+                    // TODO: add expiration
+                }
+            }
+        );
+
+
+        let info = await transporter.sendMail(mailOptions);
+        res.json({ message: 'Verification email sent successfully.' });
+    } catch (error) {
+        console.error('Failed to send email:', error);
+        res.status(500).json({ message: 'Failed to send verification code. Please try again later.' });
+    }
+});
+
+
+// UPDATE PASSWORD
+app.put('/api/updatePassword', async (req, res) => {
+    const { Token, Password } = req.body;
+    const database = client.db("COP4331Bank").collection("Users");
+
+    try {
+        const user = await database.findOne({
+            resetPasswordToken:Token
+        })
+    
+        if(!user){
+            return res.status(404).json({message: 'Password reset token is invalid.'})
+        }
+
+        const hashedPassword = await bcrypt.hash(Password,10);
+
+        // Update user information
+
+        const result = await database.updateOne(
+            { _id: user._id }, 
+            {
+                $set: { Password: hashedPassword },
+                $unset: { resetPasswordToken: "", resetPasswordExpires: "" }
+            }
+        );
+
+        // Check if the update was successful
+        if (result.modifiedCount === 0) {
+            return res.status(400).json({ message: 'Failed to reset password.' });
+        }
+
+        return res.status(200).json({ message: 'Password reset successfully' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error', error: error.toString() });
+    }
+});
+
 app.use((req, res, next) =>
 {
 	res.setHeader('Access-Control-Allow-Origin', '*');
@@ -349,5 +520,6 @@ app.use((req, res, next) =>
 	);
 	next();
 });
+
 app.listen(5000); // start Node + Express server on port 5000
 

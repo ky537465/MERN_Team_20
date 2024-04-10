@@ -22,7 +22,7 @@ function Login() {
         if (registrationSuccess) {https://webcourses.ucf.edu/courses/1444799/files/103336729?module_item_id=17631572#
             // Clear the localStorage item once retrieved
             localStorage.removeItem('registrationSuccess');
-            setSuccessMessage('Registration Successful! You can now login.');
+            //setSuccessMessage('Registration Successful! You can now login.');
         }
     }, []);
 
@@ -119,7 +119,7 @@ function Login() {
 
                     </div>
                     <div className="w-full flex justify-end">
-                        <a href="" className="text-white text-sm">Forgot Password?</a>
+                        <a href="/forgotpw" className="text-white text-sm">Forgot Password?</a>
                     </div>
                 </div>
 

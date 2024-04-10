@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import PageTitle from '../components/PageTitle';
 import LoggedInName from '../components/LoggedInName';
@@ -7,12 +7,16 @@ import SidePanel from '../components/SidePanel';
 
 const LoggedInPage = () =>
 {
+    const [isPanelExpanded, setIsPanelExpanded] = useState(true);
+
+    const togglePanel = () => {
+        setIsPanelExpanded(!isPanelExpanded);
+    };
+
     return(
         <div>
-            <SidePanel />
-            <PageTitle />
-            <LoggedInName />
-            <Accounts />
+            <SidePanel isPanelExpanded={isPanelExpanded} togglePanel={togglePanel}/>
+            <Accounts isPanelExpanded={isPanelExpanded}/>
         </div>
     );
 }
