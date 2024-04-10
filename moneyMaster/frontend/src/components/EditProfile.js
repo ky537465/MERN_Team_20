@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
-function EditProfile() {
+function EditProfile({isPanelExpanded}) {
+    const app_name = 'moneymaster20-004665ab8395'
+    function buildPath(route) {
+        if (process.env.NODE_ENV === 'production') {
+            return 'https://' + app_name + '.herokuapp.com/' + route;
+        }
+        else {
+            return 'http://localhost:5000/' + route;
+        }
+    }
     const [userData, setUserData] = useState(null);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -22,7 +31,7 @@ function EditProfile() {
 
     const fetchUserData = async (username) => {
         try {
-            const response = await fetch('http://localhost:5000/api/searchUsers', {
+            const response = await fetch(buildPath('api/searchUsers'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -49,7 +58,7 @@ function EditProfile() {
 
     const handleSave = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/updateUser', {
+            const response = await fetch(buildPath('api/updateUser'), {
                 method: 'PUT', // Change method to PUT for updating user
                 headers: {
                     'Content-Type': 'application/json',
@@ -85,10 +94,13 @@ function EditProfile() {
 
     return (
         <div className="flex">
-            <div className="w-1/4">
-                {/* Sidebar Component */}
+            {/* The side panel takes w-1/3 when expanded and w-20 when collapsed*/}
+            <div className={`${isPanelExpanded ? 'w-1/3' : 'w-20'} transition-all duration-500`}>
+                {/* Sidebar */}
+                {/* Sidebar content goes here */}
             </div>
-            <div className="w-3/4 p-4">
+            {/* The main compenent taking up w-full so the rest of the space  */}
+            <div className="w-full p-4">
                 <h2 className="text-4xl font-bold text-teal-800 mb-2">Edit Profile</h2>
                 <hr className="border-teal-800 mb-4" />
                 {userData && (

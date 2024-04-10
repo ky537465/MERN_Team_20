@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import SidePanel from '../components/SidePanel';
 import EditProfile from '../components/EditProfile';
 
-const EditUserAccountPage = () =>
-{
-    return(
+const EditUserAccountPage = () => {
+    const [isPanelExpanded, setIsPanelExpanded] = useState(true);
+
+    const togglePanel = () => {
+        setIsPanelExpanded(!isPanelExpanded);
+    };
+
+    return (
         <div>
-            <SidePanel/>
-            <EditProfile />
+            <SidePanel isPanelExpanded={isPanelExpanded} togglePanel={togglePanel}/>
+            <EditProfile isPanelExpanded={isPanelExpanded}/>
         </div>
     );
 };

@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 
-function SidePanel() {
-  const [isPanelExpanded, setIsPanelExpanded] = useState(true);
-
-  const togglePanel = () => {
-    setIsPanelExpanded(!isPanelExpanded);
-  };
+function SidePanel({ isPanelExpanded, togglePanel }) {
 
   const doLogout = async (event) => {
     event.preventDefault();

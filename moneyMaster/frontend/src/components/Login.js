@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 
 function Login() {
+    const app_name = 'moneymaster20-004665ab8395'
+    function buildPath(route) {
+        if (process.env.NODE_ENV === 'production') {
+            return 'https://' + app_name + '.herokuapp.com/' + route;
+        }
+        else {
+            return 'http://localhost:5000/' + route;
+        }
+    }
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -9,7 +19,7 @@ function Login() {
 
     useEffect(() => {
         const registrationSuccess = localStorage.getItem('registrationSuccess');
-        if (registrationSuccess) {
+        if (registrationSuccess) {https://webcourses.ucf.edu/courses/1444799/files/103336729?module_item_id=17631572#
             // Clear the localStorage item once retrieved
             localStorage.removeItem('registrationSuccess');
             setSuccessMessage('Registration Successful! You can now login.');
@@ -22,7 +32,7 @@ function Login() {
         try {
             const lowerCaseUsername = username.toLowerCase();
 
-            const response = await fetch('http://localhost:5000/api/login', {
+            const response = await fetch(buildPath('api/login'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

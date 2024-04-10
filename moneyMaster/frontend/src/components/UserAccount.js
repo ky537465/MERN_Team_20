@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
-function UserAccount() {
+function UserAccount({isPanelExpanded}) {
+    const app_name = 'moneymaster20-004665ab8395'
+    function buildPath(route) {
+        if (process.env.NODE_ENV === 'production') {
+            return 'https://' + app_name + '.herokuapp.com/' + route;
+        }
+        else {
+            return 'http://localhost:5000/' + route;
+        }
+    }
     const [userData, setUserData] = useState(null);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -23,7 +32,7 @@ function UserAccount() {
             const storedUserData = JSON.parse(localStorage.getItem('user_data'));
             if (storedUserData && storedUserData.Username) {
                 try {
-                    const response = await fetch('http://localhost:5000/api/searchUsers', {
+                    const response = await fetch(buildPath('api/searchUsers'), {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -49,11 +58,11 @@ function UserAccount() {
 
     return (
         <div className="flex">
-            <div className="w-1/4">
+            <div className={`${isPanelExpanded ? 'w-1/3' : 'w-20'} transition-all duration-500`}>
                 {/* Sidebar */}
                 {/* Sidebar content goes here */}
             </div>
-            <div className="w-3/4 p-4">
+            <div className="w-full p-4">
                 {/* Profile */}
                 {userData ? (
                     <div>

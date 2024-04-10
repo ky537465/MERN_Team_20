@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 
 function Register() {
+    const app_name = 'moneymaster20-004665ab8395'
+    function buildPath(route) {
+        if (process.env.NODE_ENV === 'production') {
+            return 'https://' + app_name + '.herokuapp.com/' + route;
+        }
+        else {
+            return 'http://localhost:5000/' + route;
+        }
+    }
+
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [username, setUsername] = useState('');
@@ -100,7 +110,7 @@ function Register() {
             const lowerCaseUsername = username.toLowerCase();
 
             // Send registration request
-            const response = await fetch('http://localhost:5000/api/register', {
+            const response = await fetch(buildPath('api/register'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
