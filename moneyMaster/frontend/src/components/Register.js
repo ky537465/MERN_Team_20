@@ -84,6 +84,9 @@ function Register() {
 
             // Convert username to lowercase
             const lowerCaseUsername = username.toLowerCase();
+            localStorage.setItem('username', lowerCaseUsername);
+
+
 
             // Send registration request
             const response = await fetch('http://localhost:5000/api/register', {
@@ -108,7 +111,7 @@ function Register() {
 
 
             localStorage.setItem('registrationSuccess', 'true');
-            window.location.href = '/login';
+            window.location.href = '/verification';
         } catch (error) {
             setError(error.message);
         }

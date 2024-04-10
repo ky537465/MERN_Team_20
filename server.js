@@ -46,28 +46,93 @@ app.post('/api/register', async (req, res, next) =>
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(Password, salt);
 
+        // email verification token + expiration
+        const emailVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const codeExpires = Date.now() + 3600000; // Code expires in 1 hour
 
-		const newUser = {
-	            FirstName: FirstName,
-	            LastName: LastName,
-	            Password: hashedPassword,
-	            PhoneNumber: PhoneNumber,
-	            Email: Email,
-	            Username: Username
-	        };
+        const newUser = {
+            FirstName,
+            LastName,
+            Password: hashedPassword,
+            PhoneNumber,
+            Email,
+            Username,
+            IsEmailVerified: false,
+            EmailVerificationCode: emailVerificationCode,
+            CodeExpires: codeExpires
+        };
 	
 		await database.insertOne(newUser);
-	
-	
-		var error = '';
+
+
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.ethereal.email',
+            port: 587,
+            auth: {
+                user: '',
+                pass: ''
+            }
+        });
+
+        const mailOptions = {
+            from: 'moneymaster.com',
+            to: Email,
+            subject: 'Verify Your Email Address',
+            html: `<p>Welcome to MoneyMaster! Please use the following code to verify your email address:</p>` +
+            `<p><b>Verification Code: ${emailVerificationCode}</b></p>` +
+            `<p>If you did not create an account, no further action is required.</p>`
+        };
+
+        try {
+            let info = await transporter.sendMail(mailOptions);
+            res.json({ message: 'Verification email sent successfully. Please check your email to verify your account.' });
+        } catch (error) {
+            console.error('Failed to send verification email:', error);
+            res.status(500).json({ message: 'Failed to send verification email. Please try again later.' });
+        }
+
+        var error = '';
 
 	}
 	catch(e)
 	{
 		error = e.toString();
 	}
-	var ret = { message: "user Registered" };
-	res.status(200).json(ret);
+});
+
+// VERIFY EMAIL 
+app.post('/api/verify-email-code', async (req, res) => {
+    const { Username, EmailVerificationCode } = req.body; 
+    const database = client.db("COP4331Bank").collection("Users");
+
+    try {
+        // Check if the user exists
+        const user = await database.findOne({ Username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check code and expiration
+        if (user.EmailVerificationCode === EmailVerificationCode && user.CodeExpires > Date.now()) {
+            // Mark email as verified and clear the verification code fields
+            const result = await database.updateOne({ Username }, {
+                $set: { IsEmailVerified: true },
+                $unset: { EmailVerificationCode: "", CodeExpires: "" }
+            });
+
+            // Check if the update was successful
+            if (result.modifiedCount === 0) {
+                return res.status(400).json({ message: 'Failed to verify email' });
+            }
+
+            return res.status(200).json({ message: 'Email verified successfully' });
+        } else {
+            return res.status(400).json({ message: 'Invalid or expired code' });
+        }
+    } catch (error) {
+        console.error('Verification error:', error);
+        return res.status(500).json({ message: 'Internal server error', error: error.toString() });
+    }
 });
 
 
@@ -85,12 +150,19 @@ app.post('/api/login', async (req, res, next) =>
 	        const results = await database.findOne({ Username });
 	
 	        if (!results || !(await bcrypt.compare(Password, results.Password)))
-		{
+		    {
 	            return res.status(401).json({ error: "Invalid Username/Password" });
 	        }
-	
-	        const { _id, FirstName, LastName } = results;
-	
+
+
+
+            if (!results.IsEmailVerified) {
+                return res.status(403).json({ error: "Please verify your email before logging in." });
+            }
+
+            const { _id, FirstName, LastName } = results;
+
+
 	        var ret = { ID: _id, FirstName: FirstName, LastName: LastName, error: '' };
 	        res.status(200).json(ret);
 	}
@@ -490,7 +562,7 @@ app.post('/api/forgotPasswordEmail', async (req, res) => {
 
     // define email options
     const mailOptions = {
-        from: 'MoneyMaster.com', // sender address
+        from: 'moneymaster.com', // sender address
         to: email, // list of receivers
         subject: 'Password Reset Verification Code', // Subject line
         html: `<p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>` +
@@ -514,19 +586,12 @@ app.post('/api/forgotPasswordEmail', async (req, res) => {
 
 
         let info = await transporter.sendMail(mailOptions);
-        console.log('Message sent: %s', info.messageId);
-        console.log("email after updateResult" + email);
         res.json({ message: 'Verification email sent successfully.' });
     } catch (error) {
         console.error('Failed to send email:', error);
         res.status(500).json({ message: 'Failed to send verification code. Please try again later.' });
     }
 });
-
-
-
-
-
 
 
 

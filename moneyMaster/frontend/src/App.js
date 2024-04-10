@@ -11,6 +11,8 @@ import TransferPage from './pages/TransferPage';
 import ResetPwPage from './pages/ResetPwPage';
 import EditUserAccountPage from './pages/EditUserAccountPage';
 import UserAccountPage from './pages/UserAccountPage';
+import VerificationPage from './pages/VerificationPage';
+
 
 
 function App() {
@@ -37,6 +39,9 @@ function App() {
         </Route>
         <Route path = "/resetpw">
           <ResetPwPage /> 
+        </Route>
+        <Route path = "/verification">
+          <VerificationPage />
         </Route>
         <Route path="/">
           <LoginPage />

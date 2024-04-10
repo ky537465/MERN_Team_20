@@ -7,6 +7,7 @@ function ResetPw() {
     const [passwordRequirements, setPasswordRequirements] = useState([]);
     const [passwordMatch, setPasswordMatch] = useState(true);
     const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
       const queryParams = new URLSearchParams(window.location.search);
@@ -16,7 +17,7 @@ function ResetPw() {
       } else {
           setError('Error: Token is missing.');
       }
-  }, []);
+    }, []);
 
     const validatePassword = (value) => {
         const requirements = [];
@@ -92,9 +93,10 @@ function ResetPw() {
             });
 
             if (response.ok) {
-              alert('Your password has been reset successfully. Please log in with your new password.');
               localStorage.setItem('passwordResetSuccess', 'true'); 
               window.location.href = '/login';
+              setMessage('Verification code has been sent to your email.');
+
               
           } else {
               const errorData = await response.json();

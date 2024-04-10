@@ -12,7 +12,7 @@ function Login() {
         if (registrationSuccess) {
             // Clear the localStorage item once retrieved
             localStorage.removeItem('registrationSuccess');
-            setSuccessMessage('Registration Successful! You can now login.');
+            //setSuccessMessage('Registration Successful! You can now login.');
         }
     }, []);
 
