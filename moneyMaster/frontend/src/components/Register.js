@@ -9,6 +9,7 @@ function Register() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordRequirements, setPasswordRequirements] = useState([]);
+    const [validationErrors, setValidationErrors] = useState([]);
     const [passwordMatch, setPasswordMatch] = useState(true);
     const [error, setError] = useState('');
 
@@ -51,36 +52,49 @@ function Register() {
         setPasswordRequirements([]);
     };
 
+    const validateInput = () => {
+        const errors = [];
+
+        // Validate all fields
+        if (!firstName || !lastName || !username || !phoneNumber || !email || !password || !confirmPassword) {
+            errors.push('All fields are required');
+        }
+
+        // Validate email and phone number format
+        const emailPattern = /.+@.+\..+/;
+        const phonePattern = /^\d{3}-\d{3}-\d{4}$/;
+        if (!emailPattern.test(email)) {
+            errors.push('Invalid email format');
+        }
+        if (!phonePattern.test(phoneNumber)) {
+            errors.push('Invalid phone number format (XXX-XXX-XXXX)');
+        }
+
+        // Validate password complexity
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!passwordRegex.test(password)) {
+            errors.push('Password must meet all requirements');
+        }
+
+        // Basic validation for password match
+        if (password !== confirmPassword) {
+            errors.push('Passwords do not match');
+        }
+
+        setValidationErrors(errors);
+        return errors.length === 0;
+    };
+
     const doRegister = async (event) => {
         event.preventDefault();
 
+        const isValid = validateInput();
+        if(!isValid){
+            return;
+        }
+
         try {
             setError('');
-
-            // Validate all fields
-            if (!firstName || !lastName || !username || !phoneNumber || !email || !password || !confirmPassword) {
-                throw new Error('All fields are required');
-            }
-            // Validate email and phone number format
-            const emailPattern = /.+@.+\..+/;
-            const phonePattern = /^\d{3}-\d{3}-\d{4}$/;
-            if (!emailPattern.test(email)) {
-                throw new Error('Invalid email format');
-            }
-            if (!phonePattern.test(phoneNumber)) {
-                throw new Error('Invalid phone number format (XXX-XXX-XXXX)');
-            }
-
-            // Validate password complexity
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-            if (!passwordRegex.test(password)) {
-                throw new Error('Password must meet all requirements');
-            }
-
-            // Basic validation for password match
-            if (password !== confirmPassword) {
-                throw new Error('Passwords do not match');
-            }
 
             // Convert username to lowercase
             const lowerCaseUsername = username.toLowerCase();
@@ -116,28 +130,46 @@ function Register() {
 
 
     return (
-        <div className="w-screen h-screen bg-teal-800 flex flex-col items-center justify-center">
+        <div className="w-screem h-max bg-teal-800 flex flex-col items-center justify-center">
             <div className="flex items-center justify-center">
                 <img src="logo.png" alt="Logo" className="w-28 h-28" />
                 <h1 className="text-white text-7xl font-extrabold ml-2 uppercase leading-tight" >Money Master</h1>
             </div>
 
-            <div className="p-8 rounded-lg border-2 border-white flex flex-col justify-center">
+            <div className="p-8 mb-6 rounded-lg border-2 border-white flex flex-col justify-center">
 
-                    <div className="flex justify-center">
-                        <span className="text-white font-bold text-3xl uppercase leading-tight">Register</span>
+                <div className="flex justify-center">
+                    <span className="text-white font-bold text-3xl uppercase leading-tight">Register</span>
+                </div>
+
+                {error && (
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <span class="block sm:inline">{error}</span>
                     </div>
+                )}
 
-                    {error && (
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                            <span class="block sm:inline">{error}</span>
+                {validationErrors.length > 0 && (
+                    <div class="flex p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                        <svg class="flex-shrink-0 inline w-4 h-4 me-3 mt-[2px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                        </svg>
+                        <span class="sr-only">Danger</span>
+                        <div>
+                            <span class="font-medium">Ensure that these requirements are met:</span>
+                            <ul class="mt-1.5 list-disc list-inside">
+                                {validationErrors.map((requirement, index) => (
+                                    <li key={index}>{requirement}</li>
+                                ))}
+                            </ul>
                         </div>
+                    </div>
                     )}
 
                     <div className="flex item-center justify-center">
                         <div class="w-full py-3 pr-3">
                             <div class="relative w-full min-w-[300px] h-10">
                                 <input
+                                    id="firstName"
                                     type="text"
                                     value={firstName}
                                     onChange={(e) => setFirstName(e.target.value)}
@@ -145,6 +177,7 @@ function Register() {
                                     placeholder=" "
                                 />
                                 <label
+                                htmlFor='firstName'
                                     className="flex w-full h-full select-none pointer-events-none absolute left-0 font-normal !overflow-visible truncate peer-placeholder-shown:text-white leading-tight peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500 transition-all -top-1.5 peer-placeholder-shown:text-sm text-[11px] peer-focus:text-[11px] before:content[' '] before:block before:box-border before:w-2.5 before:h-1.5 before:mt-[6.5px] before:mr-1 peer-placeholder-shown:before:border-transparent before:rounded-tl-md before:border-t peer-focus:before:border-t-2 before:border-l peer-focus:before:border-l-2 before:pointer-events-none before:transition-all peer-disabled:before:border-transparent after:content[' '] after:block after:flex-grow after:box-border after:w-2.5 after:h-1.5 after:mt-[6.5px] after:ml-1 peer-placeholder-shown:after:border-transparent after:rounded-tr-md after:border-t peer-focus:after:border-t-2 after:border-r peer-focus:after:border-r-2 after:pointer-events-none after:transition-all peer-disabled:after:border-transparent peer-placeholder-shown:leading-[3.75] text-white peer-focus:text-white before:border-blue-gray-200 peer-focus:before:!border-white after:border-blue-gray-200 peer-focus:after:!border-white">First Name
                                 </label>
                             </div>
@@ -153,6 +186,7 @@ function Register() {
                         <div class="w-full py-3 pl-3">
                             <div class="relative w-full min-w-[300px] h-10">
                                 <input
+                                id='lastName'
                                     type="text"
                                     value={lastName}
                                     onChange={(e) => setLastName(e.target.value)}
@@ -160,6 +194,7 @@ function Register() {
                                     placeholder=" "
                                 />
                                 <label
+                                htmlFor='lastName'
                                     className="flex w-full h-full select-none pointer-events-none absolute left-0 font-normal !overflow-visible truncate peer-placeholder-shown:text-white leading-tight peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500 transition-all -top-1.5 peer-placeholder-shown:text-sm text-[11px] peer-focus:text-[11px] before:content[' '] before:block before:box-border before:w-2.5 before:h-1.5 before:mt-[6.5px] before:mr-1 peer-placeholder-shown:before:border-transparent before:rounded-tl-md before:border-t peer-focus:before:border-t-2 before:border-l peer-focus:before:border-l-2 before:pointer-events-none before:transition-all peer-disabled:before:border-transparent after:content[' '] after:block after:flex-grow after:box-border after:w-2.5 after:h-1.5 after:mt-[6.5px] after:ml-1 peer-placeholder-shown:after:border-transparent after:rounded-tr-md after:border-t peer-focus:after:border-t-2 after:border-r peer-focus:after:border-r-2 after:pointer-events-none after:transition-all peer-disabled:after:border-transparent peer-placeholder-shown:leading-[3.75] text-white peer-focus:text-white before:border-blue-gray-200 peer-focus:before:!border-white after:border-blue-gray-200 peer-focus:after:!border-white">Last Name
                                 </label>
                             </div>
@@ -170,6 +205,7 @@ function Register() {
                         <div class="w-full py-3 pr-3">
                             <div class="relative w-full min-w-[300px] h-10">
                                 <input
+                                id='phoneNumber'
                                     type="tel"
                                     pattern="\d{3}-\d{3}-\d{4}"
                                     value={phoneNumber}
@@ -178,6 +214,7 @@ function Register() {
                                     placeholder=" "
                                 />
                                 <label
+                                htmlFor='phoneNumber'
                                     className="flex w-full h-full select-none pointer-events-none absolute left-0 font-normal !overflow-visible truncate peer-placeholder-shown:text-white leading-tight peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500 transition-all -top-1.5 peer-placeholder-shown:text-sm text-[11px] peer-focus:text-[11px] before:content[' '] before:block before:box-border before:w-2.5 before:h-1.5 before:mt-[6.5px] before:mr-1 peer-placeholder-shown:before:border-transparent before:rounded-tl-md before:border-t peer-focus:before:border-t-2 before:border-l peer-focus:before:border-l-2 before:pointer-events-none before:transition-all peer-disabled:before:border-transparent after:content[' '] after:block after:flex-grow after:box-border after:w-2.5 after:h-1.5 after:mt-[6.5px] after:ml-1 peer-placeholder-shown:after:border-transparent after:rounded-tr-md after:border-t peer-focus:after:border-t-2 after:border-r peer-focus:after:border-r-2 after:pointer-events-none after:transition-all peer-disabled:after:border-transparent peer-placeholder-shown:leading-[3.75] text-white peer-focus:text-white before:border-blue-gray-200 peer-focus:before:!border-white after:border-blue-gray-200 peer-focus:after:!border-white">Phone Number (XXX-XXX-XXXX)
                                 </label>
                             </div>
@@ -186,6 +223,7 @@ function Register() {
                         <div class="w-full py-3 pl-3">
                             <div class="relative w-full min-w-[300px] h-10">
                                 <input
+                                id='email'
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -193,6 +231,7 @@ function Register() {
                                     placeholder=" "
                                 />
                                 <label
+                                htmlFor='email'
                                     className="flex w-full h-full select-none pointer-events-none absolute left-0 font-normal !overflow-visible truncate peer-placeholder-shown:text-white leading-tight peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500 transition-all -top-1.5 peer-placeholder-shown:text-sm text-[11px] peer-focus:text-[11px] before:content[' '] before:block before:box-border before:w-2.5 before:h-1.5 before:mt-[6.5px] before:mr-1 peer-placeholder-shown:before:border-transparent before:rounded-tl-md before:border-t peer-focus:before:border-t-2 before:border-l peer-focus:before:border-l-2 before:pointer-events-none before:transition-all peer-disabled:before:border-transparent after:content[' '] after:block after:flex-grow after:box-border after:w-2.5 after:h-1.5 after:mt-[6.5px] after:ml-1 peer-placeholder-shown:after:border-transparent after:rounded-tr-md after:border-t peer-focus:after:border-t-2 after:border-r peer-focus:after:border-r-2 after:pointer-events-none after:transition-all peer-disabled:after:border-transparent peer-placeholder-shown:leading-[3.75] text-white peer-focus:text-white before:border-blue-gray-200 peer-focus:before:!border-white after:border-blue-gray-200 peer-focus:after:!border-white">Email (JaneDoe@example.com)
                                 </label>
                             </div>
@@ -202,6 +241,7 @@ function Register() {
                     <div class="w-full py-3">
                         <div class="relative w-full min-w-[300px] h-10">
                             <input
+                            id='username'
                                 type="text"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
@@ -209,6 +249,7 @@ function Register() {
                                 placeholder=" "
                             />
                             <label
+                            htmlFor='username'
                                 className="flex w-full h-full select-none pointer-events-none absolute left-0 font-normal !overflow-visible truncate peer-placeholder-shown:text-white leading-tight peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500 transition-all -top-1.5 peer-placeholder-shown:text-sm text-[11px] peer-focus:text-[11px] before:content[' '] before:block before:box-border before:w-2.5 before:h-1.5 before:mt-[6.5px] before:mr-1 peer-placeholder-shown:before:border-transparent before:rounded-tl-md before:border-t peer-focus:before:border-t-2 before:border-l peer-focus:before:border-l-2 before:pointer-events-none before:transition-all peer-disabled:before:border-transparent after:content[' '] after:block after:flex-grow after:box-border after:w-2.5 after:h-1.5 after:mt-[6.5px] after:ml-1 peer-placeholder-shown:after:border-transparent after:rounded-tr-md after:border-t peer-focus:after:border-t-2 after:border-r peer-focus:after:border-r-2 after:pointer-events-none after:transition-all peer-disabled:after:border-transparent peer-placeholder-shown:leading-[3.75] text-white peer-focus:text-white before:border-blue-gray-200 peer-focus:before:!border-white after:border-blue-gray-200 peer-focus:after:!border-white">Username
                             </label>
                         </div>
@@ -217,6 +258,7 @@ function Register() {
                     <div class="w-full py-3">
                         <div class="relative w-full min-w-[300px] h-10">
                             <input
+                            id='password'
                                 type="password"
                                 value={password}
                                 onChange={handlePasswordChange}
@@ -225,6 +267,7 @@ function Register() {
                                 placeholder=" "
                             />
                             <label
+                            htmlFor='password'
                                 className="flex w-full h-full select-none pointer-events-none absolute left-0 font-normal !overflow-visible truncate peer-placeholder-shown:text-white leading-tight peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500 transition-all -top-1.5 peer-placeholder-shown:text-sm text-[11px] peer-focus:text-[11px] before:content[' '] before:block before:box-border before:w-2.5 before:h-1.5 before:mt-[6.5px] before:mr-1 peer-placeholder-shown:before:border-transparent before:rounded-tl-md before:border-t peer-focus:before:border-t-2 before:border-l peer-focus:before:border-l-2 before:pointer-events-none before:transition-all peer-disabled:before:border-transparent after:content[' '] after:block after:flex-grow after:box-border after:w-2.5 after:h-1.5 after:mt-[6.5px] after:ml-1 peer-placeholder-shown:after:border-transparent after:rounded-tr-md after:border-t peer-focus:after:border-t-2 after:border-r peer-focus:after:border-r-2 after:pointer-events-none after:transition-all peer-disabled:after:border-transparent peer-placeholder-shown:leading-[3.75] text-white peer-focus:text-white before:border-blue-gray-200 peer-focus:before:!border-white after:border-blue-gray-200 peer-focus:after:!border-white">Password
                             </label>
                         </div>
@@ -238,7 +281,7 @@ function Register() {
                             </svg>
                             <span class="sr-only">Danger</span>
                             <div>
-                                <span class="font-medium">Ensure that these requirements are met:</span>
+                                <span class="font-medium">Password must meet these requirements:</span>
                                 <ul class="mt-1.5 list-disc list-inside">
                                     {passwordRequirements.map((requirement, index) => (
                                         <li key={index}>{requirement}</li>
@@ -251,6 +294,7 @@ function Register() {
                     <div class="w-full py-3">
                         <div class="relative w-full min-w-[300px] h-10">
                             <input
+                            id='confirmPassword'
                                 type="password"
                                 value={confirmPassword}
                                 onChange={(e) => handleConfirmPasswordChange(e)}
@@ -258,6 +302,7 @@ function Register() {
                                 placeholder=" "
                             />
                             <label
+                            htmlFor='confirmPassword'
                                 className="flex w-full h-full select-none pointer-events-none absolute left-0 font-normal !overflow-visible truncate peer-placeholder-shown:text-white leading-tight peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500 transition-all -top-1.5 peer-placeholder-shown:text-sm text-[11px] peer-focus:text-[11px] before:content[' '] before:block before:box-border before:w-2.5 before:h-1.5 before:mt-[6.5px] before:mr-1 peer-placeholder-shown:before:border-transparent before:rounded-tl-md before:border-t peer-focus:before:border-t-2 before:border-l peer-focus:before:border-l-2 before:pointer-events-none before:transition-all peer-disabled:before:border-transparent after:content[' '] after:block after:flex-grow after:box-border after:w-2.5 after:h-1.5 after:mt-[6.5px] after:ml-1 peer-placeholder-shown:after:border-transparent after:rounded-tr-md after:border-t peer-focus:after:border-t-2 after:border-r peer-focus:after:border-r-2 after:pointer-events-none after:transition-all peer-disabled:after:border-transparent peer-placeholder-shown:leading-[3.75] text-white peer-focus:text-white before:border-blue-gray-200 peer-focus:before:!border-white after:border-blue-gray-200 peer-focus:after:!border-white">Confirm Password
                             </label>
                         </div>
