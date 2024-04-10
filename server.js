@@ -634,32 +634,6 @@ app.put('/api/updatePassword', async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 app.use((req, res, next) =>
 {
 	res.setHeader('Access-Control-Allow-Origin', '*');
